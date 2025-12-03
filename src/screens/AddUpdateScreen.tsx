@@ -92,7 +92,7 @@ export const AddUpdateScreen: React.FC = () => {
         navigation.goBack();
       });
     }
-  }, [insertItem, navigation, routes.name, routes.params, updateItem]);
+  }, [insertItem, item, navigation, routes.name, routes.params, updateItem]);
 
   return (
     <View style={{flex: 1}}>

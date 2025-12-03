@@ -1,8 +1,14 @@
 import React, {useCallback, useEffect, useState} from 'react';
-import {FlatList, Pressable, View, useWindowDimensions} from 'react-native';
+import {
+  FlatList,
+  Pressable,
+  Text,
+  View,
+  useWindowDimensions,
+} from 'react-native';
 import {Header} from '../components/Header/Header';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
-import {faClose, faPlus} from '@fortawesome/free-solid-svg-icons';
+import {faPlus} from '@fortawesome/free-solid-svg-icons';
 import {AccountBookHistory} from '../data/AccountBookHistory';
 import {useRootNavigation} from '../navigations/RootNavigation';
 import {AccountBookHistoryListItemView} from '../components/AccountHistoryListItemView';
@@ -12,26 +18,24 @@ import {useAccountBookHistoryItem} from '../hooks/useAccountBookHistoryItem';
 import {useFocusEffect} from '@react-navigation/native';
 import {StackedBarChart} from 'react-native-chart-kit';
 
-const now = new Date().getTime();
-
 export const MainScreen: React.FC = () => {
   const safeAreaInset = useSafeAreaInsets();
   const {width} = useWindowDimensions();
-  //   useEffect(() => {
-  //     SQLite.openDatabase(
-  //       {
-  //         name: 'accoutn_history.db',
-  //         createFromLocation: '~www/account_history.db',
-  //         location: 'default',
-  //       },
-  //       () => {
-  //         console.log('open Success');
-  //       },
-  //       () => {
-  //         console.log('open Failure');
-  //       },
-  //     );
-  //   }, []);
+  useEffect(() => {
+    SQLite.openDatabase(
+      {
+        name: 'accoutn_history.db',
+        createFromLocation: '~www/account_history.db',
+        location: 'default',
+      },
+      () => {
+        console.log('open Success');
+      },
+      () => {
+        console.log('open Failure');
+      },
+    );
+  }, []);
 
   const navigation = useRootNavigation();
   const [list, setList] = useState<AccountBookHistory[]>([]);
@@ -58,6 +62,22 @@ export const MainScreen: React.FC = () => {
         data={list}
         ListHeaderComponent={
           <View>
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                paddingHorizontal: 16,
+                paddingVertical: 8,
+              }}>
+              <Text style={{fontSize: 18, fontWeight: '600'}}>월별 통계</Text>
+              <Pressable
+                onPress={() => {
+                  navigation.push('MonthlyAverage');
+                }}>
+                <Text style={{color: 'blue', fontSize: 14}}>자세히 보기</Text>
+              </Pressable>
+            </View>
             <StackedBarChart
               data={{
                 labels: ['10월', '11월', '12월'],

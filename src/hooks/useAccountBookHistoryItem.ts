@@ -121,7 +121,7 @@ SQLite.DEBUG(true);
 // };
 export const useAccountBookHistoryItem = () => {
   const openDB = useCallback<() => Promise<SQLiteDatabase>>(async () => {
-    return await SQLite.openDatabase(
+    const db = await SQLite.openDatabase(
       {
         name: 'account_history',
         createFromLocation: '~www/account_history.db',
@@ -135,6 +135,22 @@ export const useAccountBookHistoryItem = () => {
         console.log('open failure');
       },
     );
+
+    // 테이블이 없으면 생성 (최초 1회)
+    await db.executeSql(`
+      CREATE TABLE IF NOT EXISTS account_history (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        type TEXT,
+        price INTEGER,
+        comment TEXT,
+        date INTEGER,
+        photo_url TEXT,
+        created_at INTEGER,
+        updated_at INTEGER
+      )
+    `);
+
+    return db;
   }, []);
   return {
     insertItem: useCallback<
