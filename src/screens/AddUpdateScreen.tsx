@@ -1,5 +1,5 @@
 import React, {useCallback, useState} from 'react';
-import {Image, Pressable, ScrollView, Text, View} from 'react-native';
+import {Alert, Image, Pressable, ScrollView, Text, View} from 'react-native';
 import {Header} from '../components/Header/Header';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {faClose, faPlus} from '@fortawesome/free-solid-svg-icons';
@@ -51,14 +51,38 @@ export const AddUpdateScreen: React.FC = () => {
   }, []);
 
   const onPressPhoto = useCallback(() => {
-    navigation.push('TakePhoto', {
-      onTakePhoto: url => {
-        setItem(prevState => ({
-          ...prevState,
-          photoUrl: url,
-        }));
+    Alert.alert('사진 추가', '어떤 방법으로 사진을 추가할까요?', [
+      {
+        text: '카메라로 촬영',
+        onPress: () => {
+          navigation.push('TakePhoto', {
+            onTakePhoto: url => {
+              setItem(prevState => ({
+                ...prevState,
+                photoUrl: url,
+              }));
+            },
+          });
+        },
       },
-    });
+      {
+        text: '앨범에서 선택',
+        onPress: () => {
+          navigation.push('SelectPhoto', {
+            onSelectPhoto: url => {
+              setItem(prevState => ({
+                ...prevState,
+                photoUrl: url,
+              }));
+            },
+          });
+        },
+      },
+      {
+        text: '취소',
+        style: 'cancel',
+      },
+    ]);
   }, [navigation]);
 
   const onPressCalandar = useCallback(() => {

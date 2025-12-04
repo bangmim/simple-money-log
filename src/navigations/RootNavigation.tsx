@@ -11,6 +11,7 @@ import {AccountBookHistory} from '../data/AccountBookHistory';
 import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
 import {CalendarSelectScreen} from '../screens/CalendarSelectScreen';
 import {TakePhotoScreen} from '../screens/TakePhotoScreen';
+import {SelectPhotoScreen} from '../screens/SelectPhotoScreen';
 
 type ScreenParams = {
   // 받을 data 형태
@@ -24,6 +25,7 @@ type ScreenParams = {
   MonthlyAverage: undefined;
   CalendarSelect: {onSelectDay: (date: number) => void};
   TakePhoto: {onTakePhoto: (url: string) => void};
+  SelectPhoto: {onSelectPhoto: (url: string) => void};
 };
 
 const Stack = createNativeStackNavigator();
@@ -39,6 +41,7 @@ export const RootNavigation = () => {
       <Stack.Screen name="Detail" component={DetailScreen} />
       <Stack.Screen name="CalendarSelect" component={CalendarSelectScreen} />
       <Stack.Screen name="TakePhoto" component={TakePhotoScreen} />
+      <Stack.Screen name="SelectPhoto" component={SelectPhotoScreen} />
     </Stack.Navigator>
   );
 };
