@@ -77,15 +77,15 @@ export const useAccountBookHistoryItem = () => {
         return [];
       }
 
-      return data.map((item: AccountBookHistory) => ({
+      return data.map((item: any) => ({
         id: item.id,
-        type: item.type,
+        type: item.type as '사용' | '수입',
         price: item.price,
         comment: item.comment,
-        date: item.date !== 0 ? item.date : item.createdAt,
-        photoUrl: item.photoUrl,
-        createdAt: item.createdAt,
-        updatedAt: item.updatedAt,
+        date: item.date,
+        photoUrl: item.photo_url, // Supabase는 snake_case 반환
+        createdAt: item.created_at,
+        updatedAt: item.updated_at,
       }));
     }, [user]),
     updateItem: useCallback<

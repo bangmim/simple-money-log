@@ -97,7 +97,6 @@ export const AddUpdateScreen: React.FC = () => {
   }, [navigation]);
   const [modalVisible, setModalVisible] = useState(false);
   const onPressCalandar = useCallback(() => {
-    console.log('!!!!onPressCalandar!!!');
     setModalVisible(true);
     // navigation.navigate('CalendarSelect', {});
   }, []);
@@ -123,18 +122,20 @@ export const AddUpdateScreen: React.FC = () => {
     }));
   }, []);
 
-  const onPressSave = useCallback(() => {
-    if (routes.name === 'Add') {
-      insertItem(item).then(() => navigation.goBack());
-    }
-
-    if (routes.name === 'Update') {
-      updateItem(item).then(updateItem => {
+  const onPressSave = useCallback(async () => {
+    try {
+      if (routes.name === 'Add') {
+        await insertItem(item);
+        navigation.goBack();
+      } else if (routes.name === 'Update') {
+        const updatedItem = await updateItem(item);
         if (routes.params && 'onChangeData' in routes.params) {
-          routes.params.onChangeData(updateItem);
+          routes.params.onChangeData(updatedItem);
         }
         navigation.goBack();
-      });
+      }
+    } catch (error: any) {
+      Alert.alert('오류', error.message || '저장 중 오류가 발생했습니다.');
     }
   }, [insertItem, item, navigation, routes.name, routes.params, updateItem]);
 

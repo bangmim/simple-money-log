@@ -69,3 +69,4 @@ yarn-error.log
 .env.*.local
 
 /config/supabase.ts
+SUPABASE_FINAL_SETUP.sql
