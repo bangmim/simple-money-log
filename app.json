@@ -1,4 +1,7 @@
 {
   "name": "simplemoneylog",
-  "displayName": "딱,가계부"
+  "displayName": "딱,가계부",
+  "react-native-google-mobile-ads": {
+    "android_app_id": "ca-app-pub-6066778698509308~1493773973"
+  }
 }

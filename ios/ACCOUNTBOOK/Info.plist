@@ -52,5 +52,7 @@
 	<string>$(PRODUCT_NAME) needs access to your Camera.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>$(PRODUCT_NAME) needs access to your Camera.</string>
+  <key>GADApplicationIdentifier</key>
+    <string>ca-app-pub-6066778698509308~2674337167</string>
 </dict>
 </plist>
