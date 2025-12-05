@@ -219,6 +219,14 @@ export const MainScreen: React.FC = () => {
                 backgroundGradientTo: 'gray',
                 color: (opacity = 1) => `rgba(0,0,0,${opacity})`,
                 decimalPlaces: 0,
+                formatYLabel: (value: string) => {
+                  const num = parseFloat(value);
+                  // 0이거나 NaN이면 빈 문자열 반환
+                  if (isNaN(num) || num === 0) {
+                    return '';
+                  }
+                  return value;
+                },
               }}
             />
           </ScrollView>

@@ -87,21 +87,35 @@ export const MonthlyScreen: React.FC = () => {
         }
 
         const current = summary.get(key)!;
+        // price가 유효한 숫자인지 확인
+        const price = Number(item.price) || 0;
         if (item.type === '사용') {
-          current.expense += item.price;
+          current.expense += price;
         } else {
-          current.income += item.price;
+          current.income += price;
         }
       });
 
       const labels = months.map(m => m.label);
       // 차트에는 금액을 1,000으로 나눈 값(단위: 천원)을 사용
+      // NaN 방지를 위해 숫자 검증 추가
       const data = months.map(m => {
         const s = summary.get(m.key)!;
-        return [s.expense / 1000, s.income / 1000];
+        const expense = Number.isFinite(s.expense) ? s.expense : 0;
+        const income = Number.isFinite(s.income) ? s.income : 0;
+        return [expense / 1000, income / 1000];
       });
 
-      setChartData({labels, data});
+      // 빈 데이터 체크
+      const hasData = data.some(
+        ([expense, income]) => expense > 0 || income > 0,
+      );
+
+      if (hasData) {
+        setChartData({labels, data});
+      } else {
+        setChartData({labels: [], data: []});
+      }
 
       const summaryList: MonthlySummary[] = months.map(m => {
         const s = summary.get(m.key)!;
@@ -232,34 +246,58 @@ export const MonthlyScreen: React.FC = () => {
             </View>
 
             {/* 막대 그래프 */}
-            <ScrollView
-              horizontal
-              bounces={false}
-              showsHorizontalScrollIndicator={false}>
-              <StackedBarChart
-                data={{
-                  labels: chartData.labels,
-                  legend: ['사용', '수입'],
-                  data: chartData.data,
-                  barColors: ['#ff6b6b', '#4ecdc4'],
-                }}
-                width={period === '1y' ? chartData.labels.length * 50 : width}
-                height={260}
-                hideLegend={false}
-                chartConfig={{
-                  backgroundColor: '#ffffff',
-                  backgroundGradientFrom: '#f1f2f6',
-                  backgroundGradientTo: '#dfe4ea',
-                  color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-                  barPercentage: 0.7,
-                  decimalPlaces: 0,
-                  paddingRight: 0,
-                }}
+            {chartData.labels.length > 0 && chartData.data.length > 0 ? (
+              <ScrollView
+                horizontal
+                bounces={false}
+                showsHorizontalScrollIndicator={false}>
+                <StackedBarChart
+                  data={{
+                    labels: chartData.labels,
+                    legend: ['사용', '수입'],
+                    data: chartData.data,
+                    barColors: ['#ff6b6b', '#4ecdc4'],
+                  }}
+                  width={Math.max(
+                    period === '1y' ? chartData.labels.length * 50 : width,
+                    chartData.labels.length * 50,
+                  )}
+                  height={260}
+                  hideLegend={false}
+                  chartConfig={{
+                    backgroundColor: '#ffffff',
+                    backgroundGradientFrom: '#f1f2f6',
+                    backgroundGradientTo: '#dfe4ea',
+                    color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+                    barPercentage: 0.7,
+                    decimalPlaces: 0,
+                    paddingRight: 0,
+                    formatYLabel: (value: string) => {
+                      const num = parseFloat(value);
+                      // 0이거나 NaN이면 빈 문자열 반환
+                      if (isNaN(num) || num === 0) {
+                        return '';
+                      }
+                      return value;
+                    },
+                  }}
+                  style={{
+                    borderRadius: 12,
+                  }}
+                />
+              </ScrollView>
+            ) : (
+              <View
                 style={{
-                  borderRadius: 12,
-                }}
-              />
-            </ScrollView>
+                  height: 260,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}>
+                <Text style={{fontSize: 14, color: 'gray'}}>
+                  표시할 데이터가 없습니다.
+                </Text>
+              </View>
+            )}
           </View>
         )}
       </View>
