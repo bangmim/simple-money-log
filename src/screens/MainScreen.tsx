@@ -1,4 +1,4 @@
-import React, {useCallback, useMemo, useState} from 'react';
+import React, {useCallback, useMemo, useRef, useState} from 'react';
 import {
   Alert,
   FlatList,
@@ -14,7 +14,7 @@ import {faPlus, faTrash} from '@fortawesome/free-solid-svg-icons';
 import {AccountBookHistory} from '../data/AccountBookHistory';
 import {useRootNavigation} from '../navigations/RootNavigation';
 import {AccountBookHistoryListItemView} from '../components/AccountHistoryListItemView';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import {SafeAreaView, useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useAccountBookHistoryItem} from '../hooks/useAccountBookHistoryItem';
 import {useFocusEffect} from '@react-navigation/native';
 import {StackedBarChart} from 'react-native-chart-kit';
@@ -27,7 +27,9 @@ export const MainScreen: React.FC = () => {
   const navigation = useRootNavigation();
   const [list, setList] = useState<AccountBookHistory[]>([]);
   const {getList, deleteItem} = useAccountBookHistoryItem();
-
+  const swipeableRefs = useRef<Map<string, Swipeable | null>>(
+    new Map<string, Swipeable | null>(),
+  );
   const fetchList = useCallback(async () => {
     const data = await getList();
     setList(data);
@@ -141,7 +143,7 @@ export const MainScreen: React.FC = () => {
     [deleteItem, fetchList],
   );
   return (
-    <View style={{flex: 1}}>
+    <SafeAreaView style={{flex: 1}}>
       <Header>
         <Header.Title title="Main SCREEN"></Header.Title>
       </Header>
@@ -215,7 +217,6 @@ export const MainScreen: React.FC = () => {
       </View>
       <FlatList
         data={dailyGroups}
-        // ListHeaderComponent={}
         keyExtractor={item => item.key}
         renderItem={({item}) => {
           const dateLabel = convertToDateString(item.date).split(' ')[0];
@@ -236,36 +237,57 @@ export const MainScreen: React.FC = () => {
                 </Text>
               </View>
 
-              {item.items.map(history => (
-                <Swipeable
-                  key={history.id ?? `${history.createdAt}-${history.comment}`}
-                  renderRightActions={() => (
-                    <View
-                      style={{
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                      }}>
-                      <RectButton
-                        style={{
-                          width: 80,
-                          backgroundColor: 'red',
-                          justifyContent: 'center',
-                          alignItems: 'center',
-                        }}
-                        onPress={() => handleDelete(history)}>
-                        <FontAwesomeIcon icon={faTrash} size={20} color="red" />
-                      </RectButton>
-                    </View>
-                  )}>
-                  <AccountBookHistoryListItemView
-                    item={history}
-                    onPressItem={clicked => {
-                      console.log('clickedItem', clicked);
-                      navigation.push('Detail', {item: clicked});
+              {item.items.map(history => {
+                const historyKey =
+                  history.id !== undefined && history.id !== null
+                    ? String(history.id)
+                    : `${history.createdAt}-${history.comment}`;
+
+                return (
+                  <Swipeable
+                    key={historyKey}
+                    ref={ref => {
+                      swipeableRefs.current.set(historyKey, ref);
                     }}
-                  />
-                </Swipeable>
-              ))}
+                    onSwipeableWillOpen={() => {
+                      // 다른 아이템이 열려 있으면 미리 모두 닫기
+                      swipeableRefs.current.forEach((ref, key) => {
+                        if (key !== historyKey && ref && ref.close) {
+                          ref.close();
+                        }
+                      });
+                    }}
+                    renderRightActions={() => (
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          alignItems: 'center',
+                          paddingHorizontal: 20,
+                        }}>
+                        <RectButton
+                          style={{
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                          }}
+                          onPress={() => handleDelete(history)}>
+                          <FontAwesomeIcon
+                            icon={faTrash}
+                            size={20}
+                            color="red"
+                          />
+                        </RectButton>
+                      </View>
+                    )}>
+                    <AccountBookHistoryListItemView
+                      item={history}
+                      onPressItem={clicked => {
+                        console.log('clickedItem', clicked);
+                        navigation.push('Detail', {item: clicked});
+                      }}
+                    />
+                  </Swipeable>
+                );
+              })}
             </View>
           );
         }}
@@ -292,6 +314,6 @@ export const MainScreen: React.FC = () => {
           <FontAwesomeIcon icon={faPlus} size={30} color="white" />
         </View>
       </Pressable>
-    </View>
+    </SafeAreaView>
   );
 };

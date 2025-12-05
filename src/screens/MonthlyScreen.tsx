@@ -2,6 +2,7 @@ import React, {useCallback, useEffect, useState} from 'react';
 import {
   ActivityIndicator,
   Pressable,
+  ScrollView,
   Text,
   View,
   useWindowDimensions,
@@ -229,28 +230,34 @@ export const MonthlyScreen: React.FC = () => {
             </View>
 
             {/* 막대 그래프 */}
-            <StackedBarChart
-              data={{
-                labels: chartData.labels,
-                legend: ['사용', '수입'],
-                data: chartData.data,
-                barColors: ['#ff6b6b', '#4ecdc4'],
-              }}
-              width={Math.max(width - 32, chartData.labels.length * 80)}
-              height={260}
-              hideLegend={false}
-              chartConfig={{
-                backgroundColor: '#ffffff',
-                backgroundGradientFrom: '#f1f2f6',
-                backgroundGradientTo: '#dfe4ea',
-                color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-                barPercentage: 0.5,
-                decimalPlaces: 0,
-              }}
-              style={{
-                borderRadius: 12,
-              }}
-            />
+            <ScrollView
+              horizontal
+              bounces={false}
+              showsHorizontalScrollIndicator={false}>
+              <StackedBarChart
+                data={{
+                  labels: chartData.labels,
+                  legend: ['사용', '수입'],
+                  data: chartData.data,
+                  barColors: ['#ff6b6b', '#4ecdc4'],
+                }}
+                width={period === '1y' ? chartData.labels.length * 50 : width}
+                height={260}
+                hideLegend={false}
+                chartConfig={{
+                  backgroundColor: '#ffffff',
+                  backgroundGradientFrom: '#f1f2f6',
+                  backgroundGradientTo: '#dfe4ea',
+                  color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+                  barPercentage: 0.7,
+                  decimalPlaces: 0,
+                  paddingRight: 0,
+                }}
+                style={{
+                  borderRadius: 12,
+                }}
+              />
+            </ScrollView>
           </View>
         )}
       </View>
