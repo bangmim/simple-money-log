@@ -1,10 +1,10 @@
-import React, {useCallback, useMemo, useRef, useState} from 'react';
+import React, {useCallback, useMemo, useRef, useState, useEffect} from 'react';
 import {
   Alert,
   FlatList,
+  Platform,
   Pressable,
   ScrollView,
-  Text,
   View,
   useWindowDimensions,
 } from 'react-native';
@@ -27,6 +27,10 @@ import colors from '../theme/colors';
 import {spacing} from '../theme/spacing';
 import {Typography} from '../components/Typography';
 import {scaleWidth} from '../utils/responsive';
+import mobileAds, {
+  BannerAd,
+  BannerAdSize,
+} from 'react-native-google-mobile-ads';
 
 export const MainScreen: React.FC = () => {
   const safeAreaInset = useSafeAreaInsets();
@@ -42,6 +46,31 @@ export const MainScreen: React.FC = () => {
     const data = await getList();
     setList(data);
   }, [getList]);
+
+  const [isAdMobAvailable, setIsAdMobAvailable] = useState(false);
+
+  useEffect(() => {
+    // AdMob은 Android에서만 사용
+    if (Platform.OS !== 'android') {
+      return;
+    }
+
+    try {
+      mobileAds()
+        .initialize()
+        .then(adapterStatuses => {
+          console.log('AdMob initialized', adapterStatuses);
+          setIsAdMobAvailable(true);
+        })
+        .catch(error => {
+          console.warn('AdMob initialization failed:', error);
+          setIsAdMobAvailable(false);
+        });
+    } catch (error) {
+      console.warn('AdMob module not available:', error);
+      setIsAdMobAvailable(false);
+    }
+  }, []);
 
   useFocusEffect(
     useCallback(() => {
@@ -220,6 +249,23 @@ export const MainScreen: React.FC = () => {
           </ScrollView>
         ) : (
           <EmptyState message="이번 달 일별 데이터가 없습니다." height={220} />
+        )}
+
+        {Platform.OS === 'android' && isAdMobAvailable && (
+          <View
+            style={{
+              alignItems: 'center',
+              marginTop: scaleWidth(16),
+              marginBottom: scaleWidth(8),
+            }}>
+            <BannerAd
+              unitId={'ca-app-pub-6066778698509308/7282939667'}
+              size={BannerAdSize.FULL_BANNER}
+              requestOptions={{
+                requestNonPersonalizedAdsOnly: true,
+              }}
+            />
+          </View>
         )}
       </View>
       <FlatList
