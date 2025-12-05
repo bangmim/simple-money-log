@@ -1,145 +1,163 @@
 import {useCallback} from 'react';
 import {AccountBookHistory} from '../data/AccountBookHistory';
-import SQLite, {SQLiteDatabase} from 'react-native-sqlite-storage';
-
-SQLite.enablePromise(true);
-SQLite.DEBUG(true);
+import {supabase} from '../config/supabase';
+import {useAuth} from './useAuth';
 
 export const useAccountBookHistoryItem = () => {
-  const openDB = useCallback<() => Promise<SQLiteDatabase>>(async () => {
-    const db = await SQLite.openDatabase(
-      {
-        name: 'account_history',
-        createFromLocation: '~www/account_history.db',
-        // createFromLocation: 1,
-        location: 'default',
-      },
-      () => {
-        console.log('open success');
-      },
-      () => {
-        console.log('open failure');
-      },
-    );
-
-    // 테이블이 없으면 생성 (최초 1회)
-    await db.executeSql(`
-      CREATE TABLE IF NOT EXISTS account_history (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        type TEXT,
-        price INTEGER,
-        comment TEXT,
-        date INTEGER,
-        photo_url TEXT,
-        created_at INTEGER,
-        updated_at INTEGER
-      )
-    `);
-
-    // 기존 데이터 중 date가 0인 경우 created_at으로 채워서
-    // 차트/리스트에서 모두 동일한 기준 날짜를 보도록 마이그레이션
-    await db.executeSql(`
-      UPDATE account_history
-      SET date = created_at
-      WHERE date IS NULL OR date = 0
-    `);
-
-    return db;
-  }, []);
+  const {user} = useAuth();
   return {
     insertItem: useCallback<
       (item: Omit<AccountBookHistory, 'id'>) => Promise<AccountBookHistory>
     >(
       async item => {
-        const db = await openDB();
+        if (!user?.id) {
+          throw new Error('User not authenticated');
+        }
+
+        if (!supabase) {
+          throw new Error('Supabase not configured');
+        }
+
         const now = new Date().getTime();
         const dateValue = item.date !== 0 ? item.date : now;
-        const result = await db.executeSql(
-          `
-				  INSERT INTO account_history (type, price, comment, date, photo_url, created_at, updated_at)
-				  VALUES ( 
-					  "${item.type}",
-					  ${item.price},
-					  "${item.comment}",
-					  ${dateValue},
-					  ${item.photoUrl !== null ? `"${item.photoUrl}"` : null},
-					  ${now},
-					  ${now}
-				  )
-			  `,
-        );
 
-        console.log(result);
+        const {data, error} = await supabase
+          .from('account_history')
+          .insert({
+            user_id: user.id,
+            type: item.type,
+            price: item.price,
+            comment: item.comment,
+            date: dateValue,
+            photo_url: item.photoUrl,
+            created_at: now,
+            updated_at: now,
+          })
+          .select()
+          .single();
+
+        if (error) {
+          throw new Error(error.message);
+        }
 
         return {
-          ...item,
-          id: result[0].insertId,
+          id: data.id,
+          type: data.type as '사용' | '수입',
+          price: data.price,
+          comment: data.comment,
+          date: data.date,
+          photoUrl: data.photo_url,
+          createdAt: data.created_at,
+          updatedAt: data.updated_at,
         };
       },
-      [openDB],
+      [user],
     ),
     getList: useCallback<() => Promise<AccountBookHistory[]>>(async () => {
-      const db = await openDB();
-      const result = await db.executeSql('SELECT * FROM account_history');
-      const items: AccountBookHistory[] = [];
-      const size = result[0].rows.length;
-
-      for (let i = 0; i < size; i++) {
-        const item = result[0].rows.item(i);
-
-        items.push({
-          type: item.type,
-          comment: item.comment,
-          createdAt: parseInt(item.created_at),
-          updatedAt: parseInt(item.updated_at),
-          date: parseInt(item.date),
-          id: parseInt(item.id),
-          photoUrl: item.photo_url,
-          price: parseInt(item.price),
-        });
+      if (!user?.id) {
+        return [];
       }
 
-      // createdAt 기준으로 최신순 정렬 (date가 0인 경우도 포함)
-      return items.sort((a, b) => b.createdAt - a.createdAt);
-    }, [openDB]),
+      if (!supabase) {
+        throw new Error('Supabase not configured');
+      }
+
+      const {data, error} = await supabase
+        .from('account_history')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', {ascending: false});
+
+      if (error) {
+        console.error('Error fetching account history:', error);
+        return [];
+      }
+
+      if (!data) {
+        return [];
+      }
+
+      return data.map((item: AccountBookHistory) => ({
+        id: item.id,
+        type: item.type,
+        price: item.price,
+        comment: item.comment,
+        date: item.date !== 0 ? item.date : item.createdAt,
+        photoUrl: item.photoUrl,
+        createdAt: item.createdAt,
+        updatedAt: item.updatedAt,
+      }));
+    }, [user]),
     updateItem: useCallback<
       (item: AccountBookHistory) => Promise<AccountBookHistory>
     >(
       async item => {
         if (typeof item.id === 'undefined') {
-          throw Error('unexpected id value');
+          throw new Error('unexpected id value');
         }
 
-        const db = await openDB();
+        if (!user?.id) {
+          throw new Error('User not authenticated');
+        }
+
+        if (!supabase) {
+          throw new Error('Supabase not configured');
+        }
 
         const now = new Date().getTime();
 
-        const result = await db.executeSql(
-          `
-			  UPDATE account_history
-			  SET price=${item.price},
-				  comment="${item.comment}",
-				  date=${item.date},
-				  photo_url=${item.photoUrl !== null ? `"${item.photoUrl}"` : null},
-				  updated_at=${now},
-				  date=${item.date}
-			  WHERE id=${item.id}
-		  `,
-        );
+        const {data, error} = await supabase
+          .from('account_history')
+          .update({
+            price: item.price,
+            comment: item.comment,
+            date: item.date,
+            photo_url: item.photoUrl,
+            updated_at: now,
+          })
+          .eq('id', item.id)
+          .eq('user_id', user.id)
+          .select()
+          .single();
+
+        if (error) {
+          throw new Error(error.message);
+        }
 
         return {
-          ...item,
-          id: result[0].insertId,
+          id: data.id,
+          type: data.type as '사용' | '수입',
+          price: data.price,
+          comment: data.comment,
+          date: data.date,
+          photoUrl: data.photo_url,
+          createdAt: data.created_at,
+          updatedAt: data.updated_at,
         };
       },
-      [openDB],
+      [user],
     ),
     deleteItem: useCallback<(id: number) => Promise<void>>(
       async id => {
-        const db = await openDB();
-        await db.executeSql('DELETE FROM account_history WHERE id = ?', [id]);
+        if (!user?.id) {
+          throw new Error('User not authenticated');
+        }
+
+        if (!supabase) {
+          throw new Error('Supabase not configured');
+        }
+
+        const {error} = await supabase
+          .from('account_history')
+          .delete()
+          .eq('id', id)
+          .eq('user_id', user.id);
+
+        if (error) {
+          throw new Error(error.message);
+        }
       },
-      [openDB],
+      [user],
     ),
   };
 };
