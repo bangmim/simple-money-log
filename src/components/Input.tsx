@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import {View, TextInput, TextInputProps, StyleSheet} from 'react-native';
 import colors from '../theme/colors';
+import {getFontFamily} from '../theme/typography';
 
 type InputProps = {
   value: string;
@@ -62,6 +63,7 @@ const styles = StyleSheet.create({
   },
   input: {
     paddingVertical: 0,
+    fontFamily: getFontFamily(),
   },
 });
 

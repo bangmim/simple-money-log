@@ -24,6 +24,8 @@ import {useAuth} from '../hooks/useAuth';
 import {EmptyState} from '../components/EmptyState';
 import {confirmDialog} from '../utils/confirmDialog';
 import colors from '../theme/colors';
+import {spacing} from '../theme/spacing';
+import {Typography} from '../components/Typography';
 
 export const MainScreen: React.FC = () => {
   const safeAreaInset = useSafeAreaInsets();
@@ -157,7 +159,7 @@ export const MainScreen: React.FC = () => {
   }, [signOut]);
 
   return (
-    <SafeAreaView style={{flex: 1}}>
+    <SafeAreaView style={{flex: 1, backgroundColor: colors.background}}>
       <Header>
         <Header.Title title="가계부" />
         <Pressable onPress={handleLogout}>
@@ -174,17 +176,17 @@ export const MainScreen: React.FC = () => {
             flexDirection: 'row',
             alignItems: 'center',
             justifyContent: 'space-between',
-            paddingHorizontal: 16,
+            paddingHorizontal: spacing.horizontal,
             paddingVertical: 8,
           }}>
-          <Text style={{fontSize: 18, fontWeight: '600'}}>
+          <Typography variant="title" fontSize={18}>
             일별 통계 (
             {new Date().toLocaleDateString('ko-KR', {
               year: 'numeric',
               month: 'long',
             })}
             , 단위: 천원)
-          </Text>
+          </Typography>
           <Pressable
             onPress={() => {
               if (list.length === 0) {
@@ -193,9 +195,9 @@ export const MainScreen: React.FC = () => {
               }
               navigation.push('MonthlyAverage');
             }}>
-            <Text style={{color: colors.primary, fontSize: 14}}>
+            <Typography variant="caption" color={colors.primary}>
               자세히 보기
-            </Text>
+            </Typography>
           </Pressable>
         </View>
         {dailyChart.hasData ? (
@@ -224,20 +226,22 @@ export const MainScreen: React.FC = () => {
         renderItem={({item}) => {
           const dateLabel = convertToDateString(item.date).split(' ')[0];
           return (
-            <View style={{paddingHorizontal: 16, paddingVertical: 12}}>
+            <View
+              style={{
+                paddingHorizontal: spacing.horizontal,
+                paddingVertical: 12,
+              }}>
               <View
                 style={{
                   flexDirection: 'row',
                   justifyContent: 'space-between',
                   marginBottom: 8,
                 }}>
-                <Text style={{fontSize: 16, fontWeight: '600'}}>
-                  {dateLabel}
-                </Text>
-                <Text style={{fontSize: 14, color: colors.textSecondary}}>
+                <Typography variant="bodyBold">{dateLabel}</Typography>
+                <Typography variant="caption" color={colors.textSecondary}>
                   사용 {item.totalExpense.toLocaleString()}원 / 수입{' '}
                   {item.totalIncome.toLocaleString()}원
-                </Text>
+                </Typography>
               </View>
 
               {item.items.map(history => {

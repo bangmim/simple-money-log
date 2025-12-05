@@ -2,6 +2,7 @@ import React from 'react';
 import {Pressable, Text, View, StyleSheet} from 'react-native';
 import {AccountBookHistory} from '../data/AccountBookHistory';
 import colors from '../theme/colors';
+import {textStyles} from '../theme/typography';
 
 type TypeSelectorProps = {
   selectedType: AccountBookHistory['type'];
@@ -82,10 +83,11 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
   },
   buttonText: {
-    fontSize: 16,
+    ...textStyles.body,
     color: colors.textPrimary,
   },
   selectedText: {
+    ...textStyles.body,
     color: colors.textInverse,
   },
 });

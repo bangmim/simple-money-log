@@ -11,6 +11,8 @@ import {TypeSelector} from '../components/TypeSelector';
 import {PhotoPicker} from '../components/PhotoPicker';
 import {DatePickerButton} from '../components/DatePickerButton';
 import {Button} from '../components/Button';
+import colors from '../theme/colors';
+import {spacing} from '../theme/spacing';
 import {useAccountBookHistoryItem} from '../hooks/useAccountBookHistoryItem';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {useFocusEffect} from '@react-navigation/native';
@@ -132,7 +134,7 @@ export const AddUpdateScreen: React.FC = () => {
   }, [insertItem, item, navigation, routes.name, routes.params, updateItem]);
 
   return (
-    <SafeAreaView style={{flex: 1}}>
+    <SafeAreaView style={{flex: 1, backgroundColor: colors.background}}>
       <Header>
         <Header.Title
           title={routes.name === 'Add' ? '내역 추가' : '내역 수정'}
@@ -145,8 +147,11 @@ export const AddUpdateScreen: React.FC = () => {
         </Pressable>
       </Header>
       <ScrollView
-        style={{flex: 1}}
-        contentContainerStyle={{paddingTop: 12, paddingHorizontal: 24}}>
+        style={{flex: 1, backgroundColor: colors.background}}
+        contentContainerStyle={{
+          paddingTop: 12,
+          paddingHorizontal: spacing.horizontal,
+        }}>
         <TypeSelector
           selectedType={item.type}
           onSelectType={onPressType}

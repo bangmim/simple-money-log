@@ -9,6 +9,8 @@ import {
   PhotoIdentifier,
 } from '@react-native-camera-roll/camera-roll';
 import {SafeAreaView} from 'react-native-safe-area-context';
+import colors from '../theme/colors';
+import {Typography} from '../components/Typography';
 
 export const SelectPhotoScreen: React.FC = () => {
   const navigation = useRootNavigation<'SelectPhoto'>();
@@ -37,7 +39,7 @@ export const SelectPhotoScreen: React.FC = () => {
   );
 
   return (
-    <SafeAreaView style={{flex: 1}}>
+    <SafeAreaView style={{flex: 1, backgroundColor: colors.background}}>
       <Header>
         <Header.Title title="앨범에서 선택" />
         <Pressable onPress={navigation.goBack}>
@@ -66,7 +68,7 @@ export const SelectPhotoScreen: React.FC = () => {
               alignItems: 'center',
               justifyContent: 'center',
             }}>
-            <Text>표시할 사진이 없습니다.</Text>
+            <Typography variant="caption">표시할 사진이 없습니다.</Typography>
           </View>
         }
       />

@@ -5,6 +5,8 @@ import {faX} from '@fortawesome/free-solid-svg-icons';
 import {useRootNavigation} from '../navigations/RootNavigation';
 import {Calendar} from 'react-native-calendars';
 import {convertToDateString} from '../utils/DateUtils';
+import colors from '../theme/colors';
+import {Typography} from '../components/Typography';
 
 const today = new Date();
 today.setHours(0);
@@ -77,7 +79,7 @@ export const CalendarSelectScreen: React.FC<CalendarSelectScreenProps> = ({
             style={{
               width: '88%',
               borderRadius: 16,
-              backgroundColor: 'white',
+              backgroundColor: colors.background,
               paddingBottom: 16,
               overflow: 'hidden',
             }}>
@@ -91,7 +93,7 @@ export const CalendarSelectScreen: React.FC<CalendarSelectScreenProps> = ({
                 borderBottomWidth: 1,
                 borderBottomColor: '#e0e0e0',
               }}>
-              <Text style={{fontSize: 16, fontWeight: '600'}}>날짜 선택</Text>
+              <Typography variant="bodyBold">날짜 선택</Typography>
               <Pressable onPress={handleClose}>
                 <FontAwesomeIcon icon={faX} />
               </Pressable>

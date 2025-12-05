@@ -3,6 +3,7 @@ import {Pressable, TextInput, View, StyleSheet} from 'react-native';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {faEye, faEyeSlash} from '@fortawesome/free-solid-svg-icons';
 import colors from '../theme/colors';
+import {getFontFamily} from '../theme/typography';
 
 type PasswordInputProps = {
   value: string;
@@ -77,6 +78,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     paddingVertical: 0,
     flex: 1,
+    fontFamily: getFontFamily(),
   },
   iconButton: {
     padding: 4,

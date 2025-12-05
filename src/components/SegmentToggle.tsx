@@ -1,6 +1,7 @@
 import React from 'react';
 import {Pressable, Text, View, StyleSheet} from 'react-native';
 import colors from '../theme/colors';
+import {textStyles} from '../theme/typography';
 
 type SegmentOption<T extends string> = {
   value: T;
@@ -67,10 +68,13 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
   },
   buttonText: {
-    fontSize: 13,
+    ...textStyles.caption,
+    fontSize: 13, // 13px은 caption(14px)보다 작으므로 override
     color: colors.textPrimary,
   },
   selectedText: {
+    ...textStyles.caption,
+    fontSize: 13,
     color: colors.textInverse,
   },
 });

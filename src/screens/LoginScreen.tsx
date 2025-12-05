@@ -16,6 +16,7 @@ import {useAuth} from '../hooks/useAuth';
 import {PasswordInput} from '../components/PasswordInput';
 import {Button} from '../components/Button';
 import colors from '../theme/colors';
+import {Typography} from '../components/Typography';
 
 export const LoginScreen: React.FC = () => {
   const {signInWithUsername, signUp} = useAuth();
@@ -104,19 +105,23 @@ export const LoginScreen: React.FC = () => {
           <Spacer space={48} />
 
           <View>
-            <Text style={{fontSize: 24, fontWeight: 'bold', marginBottom: 8}}>
-              {isSignUp ? '새 계정 만들기' : '가계부에 오신 것을 환영합니다'}
-            </Text>
-            <Text
+            <Typography
+              variant="h2"
               style={{
-                fontSize: 16,
-                color: colors.textSecondary,
+                marginBottom: 8,
+              }}>
+              {isSignUp ? '새 계정 만들기' : '가계부에 오신 것을 환영합니다'}
+            </Typography>
+            <Typography
+              variant="body"
+              color={colors.textSecondary}
+              style={{
                 marginBottom: 32,
               }}>
               {isSignUp
                 ? '이메일, 아이디, 비밀번호를 입력해주세요 (닉네임은 선택사항)'
                 : '아이디와 비밀번호를 입력해주세요'}
-            </Text>
+            </Typography>
 
             <SingleLineInput
               value={username}
@@ -168,11 +173,11 @@ export const LoginScreen: React.FC = () => {
             <Pressable
               onPress={() => setIsSignUp(!isSignUp)}
               style={{alignItems: 'center'}}>
-              <Text style={{color: colors.textSecondary, fontSize: 14}}>
+              <Typography variant="caption" color={colors.textSecondary}>
                 {isSignUp
                   ? '이미 계정이 있으신가요? 로그인'
                   : '계정이 없으신가요? 회원가입'}
-              </Text>
+              </Typography>
             </Pressable>
           </View>
         </ScrollView>

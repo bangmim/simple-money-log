@@ -1,5 +1,5 @@
 import React, {useCallback, useState} from 'react';
-import {Pressable, ScrollView, Text, View} from 'react-native';
+import {Pressable, ScrollView, View} from 'react-native';
 import {Header} from '../components/Header/Header';
 import {faClose} from '@fortawesome/free-solid-svg-icons';
 import {useRootNavigation, useRootRoute} from '../navigations/RootNavigation';
@@ -13,6 +13,8 @@ import {DatePickerButton} from '../components/DatePickerButton';
 import {Button} from '../components/Button';
 import {confirmDialog} from '../utils/confirmDialog';
 import colors from '../theme/colors';
+import {spacing} from '../theme/spacing';
+import {Typography} from '../components/Typography';
 import {SafeAreaView} from 'react-native-safe-area-context';
 
 export const DetailScreen: React.FC = () => {
@@ -29,6 +31,15 @@ export const DetailScreen: React.FC = () => {
       },
     });
   }, [navigation, routes.params.item]);
+
+  const handleEditField = useCallback(() => {
+    confirmDialog({
+      title: '수정',
+      message: '이 내역을 수정하시겠습니까?',
+      confirmText: '수정',
+      onConfirm: onPressUpdate,
+    });
+  }, [onPressUpdate]);
 
   const onPressDelete = useCallback(() => {
     if (typeof item.id === 'undefined') {
@@ -47,15 +58,18 @@ export const DetailScreen: React.FC = () => {
   }, [deleteItem, item.id, navigation]);
 
   return (
-    <SafeAreaView style={{flex: 1}}>
+    <SafeAreaView style={{flex: 1, backgroundColor: colors.background}}>
       <Header>
         <Header.Title title="내역 상세" />
         <Header.Icon iconName={faClose} onPress={() => navigation.goBack()} />
       </Header>
 
       <ScrollView
-        style={{flex: 1}}
-        contentContainerStyle={{paddingTop: 12, paddingHorizontal: 24}}>
+        style={{flex: 1, backgroundColor: colors.background}}
+        contentContainerStyle={{
+          paddingTop: 12,
+          paddingHorizontal: spacing.horizontal,
+        }}>
         <TypeSelector
           selectedType={item.type}
           onSelectType={() => {}}
@@ -66,53 +80,55 @@ export const DetailScreen: React.FC = () => {
 
         <View style={{flexDirection: 'row', alignItems: 'center'}}>
           <View style={{flex: 1}}>
-            <View
-              style={{
-                borderColor: colors.border,
-                borderWidth: 1,
-                paddingVertical: 8,
-                paddingHorizontal: 12,
-              }}>
-              <Text
-                style={[
-                  item.date === 0
-                    ? {color: colors.textTertiary}
-                    : {color: colors.textSecondary},
-                  {fontSize: 16},
-                ]}>
-                {item.price.toString() + '원'}
-              </Text>
-            </View>
+            <Pressable onPress={handleEditField}>
+              <View
+                style={{
+                  borderColor: colors.border,
+                  borderWidth: 1,
+                  paddingVertical: 8,
+                  paddingHorizontal: 12,
+                }}>
+                <Typography
+                  variant="body"
+                  color={
+                    item.date === 0 ? colors.textTertiary : colors.textSecondary
+                  }>
+                  {item.price.toString() + '원'}
+                </Typography>
+              </View>
+            </Pressable>
 
             <Spacer space={24} />
 
             <DatePickerButton
               date={item.date}
-              onPress={() => {}}
+              onPress={handleEditField}
               placeholder="날짜를 선택하세요"
             />
           </View>
 
           <View style={{marginLeft: 24}}>
-            <PhotoPicker photoUrl={item.photoUrl} onPress={() => {}} />
+            <PhotoPicker photoUrl={item.photoUrl} onPress={handleEditField} />
           </View>
         </View>
 
         <Spacer space={12} />
-        <View
-          style={{
-            alignSelf: 'stretch',
-            paddingHorizontal: 12,
-            paddingVertical: 8,
-            borderRadius: 4,
-            borderWidth: 1,
-            borderColor: colors.border,
-            height: 100,
-          }}>
-          <Text style={{fontSize: 20, color: colors.textSecondary}}>
-            {item.comment}{' '}
-          </Text>
-        </View>
+        <Pressable onPress={handleEditField}>
+          <View
+            style={{
+              alignSelf: 'stretch',
+              paddingHorizontal: 12,
+              paddingVertical: 8,
+              borderRadius: 4,
+              borderWidth: 1,
+              borderColor: colors.border,
+              height: 100,
+            }}>
+            <Typography variant="h3" color={colors.textSecondary}>
+              {item.comment}{' '}
+            </Typography>
+          </View>
+        </Pressable>
 
         <Spacer space={64} />
 

@@ -19,6 +19,8 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 import {SegmentToggle} from '../components/SegmentToggle';
 import {EmptyState} from '../components/EmptyState';
 import colors from '../theme/colors';
+import {spacing} from '../theme/spacing';
+import {Typography} from '../components/Typography';
 
 type MonthlySummary = {
   key: string;
@@ -146,7 +148,7 @@ export const MonthlyScreen: React.FC = () => {
   }, [buildMonthlyData, getList]);
 
   return (
-    <SafeAreaView style={{flex: 1}}>
+    <SafeAreaView style={{flex: 1, backgroundColor: colors.background}}>
       <Header>
         <Header.Title title="월별 통계 (단위: 천원)" />
         <Pressable
@@ -156,7 +158,12 @@ export const MonthlyScreen: React.FC = () => {
           <FontAwesomeIcon icon={faClose} />
         </Pressable>
       </Header>
-      <View style={{flex: 1, padding: 16}}>
+      <View
+        style={{
+          flex: 1,
+          paddingHorizontal: spacing.horizontal,
+          paddingVertical: spacing.vertical,
+        }}>
         {loading ? (
           <View
             style={{
@@ -181,17 +188,20 @@ export const MonthlyScreen: React.FC = () => {
             {/* 상단 요약 카드 */}
             <View
               style={{
-                marginBottom: 16,
-                padding: 16,
+                marginBottom: spacing.vertical,
+                padding: spacing.vertical,
                 borderRadius: 12,
                 backgroundColor: colors.backgroundSecondary,
               }}>
               {monthlySummary.length > 0 ? (
                 <>
-                  <Text
-                    style={{fontSize: 16, fontWeight: '600', marginBottom: 8}}>
-                    최근 3개월 요약
-                  </Text>
+                  <Typography
+                    variant="bodyBold"
+                    style={{
+                      marginBottom: 8,
+                    }}>
+                    {period === '1y' ? '올해 전체 요약' : '최근 3개월 요약'}
+                  </Typography>
                   {monthlySummary.map(summary => (
                     <View
                       key={summary.key}
@@ -200,18 +210,22 @@ export const MonthlyScreen: React.FC = () => {
                         justifyContent: 'space-between',
                         marginTop: 4,
                       }}>
-                      <Text style={{fontSize: 14}}>{summary.label}</Text>
-                      <Text style={{fontSize: 14, color: colors.textSecondary}}>
+                      <Typography variant="caption" color={colors.textPrimary}>
+                        {summary.label}
+                      </Typography>
+                      <Typography
+                        variant="caption"
+                        color={colors.textSecondary}>
                         사용 {summary.expense.toLocaleString()}원 / 수입{' '}
                         {summary.income.toLocaleString()}원
-                      </Text>
+                      </Typography>
                     </View>
                   ))}
                 </>
               ) : (
-                <Text style={{fontSize: 14, color: colors.textSecondary}}>
+                <Typography variant="caption" color={colors.textSecondary}>
                   최근 3개월에 대한 데이터가 없습니다.
-                </Text>
+                </Typography>
               )}
             </View>
 

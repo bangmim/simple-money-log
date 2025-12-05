@@ -1,6 +1,7 @@
 import React from 'react';
 import {Pressable, Text, View, StyleSheet} from 'react-native';
 import colors from '../theme/colors';
+import {textStyles} from '../theme/typography';
 
 type ButtonProps = {
   title: string;
@@ -49,8 +50,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   buttonText: {
-    fontSize: 16,
+    ...textStyles.bodyBold,
     color: colors.textInverse,
-    fontWeight: '600',
   },
 });

@@ -6,6 +6,7 @@ import {faClose} from '@fortawesome/free-solid-svg-icons';
 import {useRootNavigation, useRootRoute} from '../navigations/RootNavigation';
 import {Camera, useCameraDevice} from 'react-native-vision-camera';
 import {CameraRoll} from '@react-native-camera-roll/camera-roll';
+import colors from '../theme/colors';
 
 export const TakePhotoScreen: React.FC = () => {
   const navigation = useRootNavigation<'TakePhoto'>();
@@ -38,7 +39,7 @@ export const TakePhotoScreen: React.FC = () => {
   if (device == null) return;
 
   return (
-    <View style={{flex: 1}}>
+    <View style={{flex: 1, backgroundColor: colors.background}}>
       <Header>
         <Header.Title title="사진 찍기"></Header.Title>
         <Pressable onPress={navigation.goBack}>

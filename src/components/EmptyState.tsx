@@ -1,5 +1,6 @@
 import React from 'react';
-import {Text, View, StyleSheet} from 'react-native';
+import {View, StyleSheet} from 'react-native';
+import {Typography} from './Typography';
 
 type EmptyStateProps = {
   message: string;
@@ -12,7 +13,9 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
 }) => {
   return (
     <View style={[styles.container, {height}]}>
-      <Text style={styles.text}>{message}</Text>
+      <Typography variant="caption" color="gray">
+        {message}
+      </Typography>
     </View>
   );
 };
@@ -21,9 +24,5 @@ const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  text: {
-    fontSize: 14,
-    color: 'gray',
   },
 });
