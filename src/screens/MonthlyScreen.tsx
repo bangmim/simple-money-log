@@ -255,7 +255,11 @@ export const MonthlyScreen: React.FC = () => {
                   data={{
                     labels: chartData.labels,
                     legend: ['사용', '수입'],
-                    data: chartData.data,
+                    data: chartData.data.map(([expense, income]) => [
+                      // 0일 때는 null로 설정하여 막대 위 값이 표시되지 않도록 함
+                      expense === 0 ? (null as any) : expense,
+                      income === 0 ? (null as any) : income,
+                    ]) as any,
                     barColors: ['#ff6b6b', '#4ecdc4'],
                   }}
                   width={Math.max(
@@ -274,11 +278,17 @@ export const MonthlyScreen: React.FC = () => {
                     paddingRight: 0,
                     formatYLabel: (value: string) => {
                       const num = parseFloat(value);
-                      // 0이거나 NaN이면 빈 문자열 반환
                       if (isNaN(num) || num === 0) {
                         return '';
                       }
                       return value;
+                    },
+                    formatTopBarValue: (value: number) => {
+                      // 0일 때는 빈 문자열 반환하여 막대 위 값 숨김
+                      if (value === 0 || value < 0.01) {
+                        return '';
+                      }
+                      return Math.round(value).toString();
                     },
                   }}
                   style={{

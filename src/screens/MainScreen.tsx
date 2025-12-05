@@ -196,7 +196,7 @@ export const MainScreen: React.FC = () => {
         {dailyChart.hasData ? (
           <ScrollView
             horizontal
-            style={{backgroundColor: 'lightgray'}}
+            style={{backgroundColor: '#f1f2f6'}}
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={{
               paddingVertical: 8,
@@ -205,27 +205,34 @@ export const MainScreen: React.FC = () => {
               data={{
                 labels: dailyChart.labels,
                 legend: ['사용', '수입'],
-                data: dailyChart.data,
-                // 같은 날짜에 지출/수입이 모두 있는 경우
-                // 하나의 막대 안에서 색으로 구분되도록 대비되는 색상 사용
+                data: dailyChart.data.map(([expense, income]) => [
+                  // 0일 때는 null로 설정하여 막대 위 값이 표시되지 않도록 함
+                  expense === 0 ? (null as any) : expense,
+                  income === 0 ? (null as any) : income,
+                ]) as any,
                 barColors: ['#ff6b6b', '#4ecdc4'],
               }}
               hideLegend
               width={Math.max(width, dailyChart.labels.length * 40)}
               height={220}
               chartConfig={{
-                backgroundColor: 'white',
-                backgroundGradientFrom: 'lightgray',
-                backgroundGradientTo: 'gray',
+                backgroundColor: '#ffffff',
+                backgroundGradientFrom: '#f1f2f6',
+                backgroundGradientTo: '#dfe4ea',
                 color: (opacity = 1) => `rgba(0,0,0,${opacity})`,
                 decimalPlaces: 0,
                 formatYLabel: (value: string) => {
                   const num = parseFloat(value);
-                  // 0이거나 NaN이면 빈 문자열 반환
                   if (isNaN(num) || num === 0) {
                     return '';
                   }
                   return value;
+                },
+                formatTopBarValue: (value: number) => {
+                  if (value <= 0) {
+                    return '';
+                  }
+                  return value.toString();
                 },
               }}
             />
@@ -276,7 +283,6 @@ export const MainScreen: React.FC = () => {
                       swipeableRefs.current.set(historyKey, ref);
                     }}
                     onSwipeableWillOpen={() => {
-                      // 다른 아이템이 열려 있으면 미리 모두 닫기
                       swipeableRefs.current.forEach((ref, key) => {
                         if (key !== historyKey && ref && ref.close) {
                           ref.close();
@@ -307,7 +313,6 @@ export const MainScreen: React.FC = () => {
                     <AccountBookHistoryListItemView
                       item={history}
                       onPressItem={clicked => {
-                        console.log('clickedItem', clicked);
                         navigation.push('Detail', {item: clicked});
                       }}
                     />
