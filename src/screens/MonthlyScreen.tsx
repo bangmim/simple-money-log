@@ -11,11 +11,14 @@ import {
 import {Header} from '../components/Header/Header';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {faClose} from '@fortawesome/free-solid-svg-icons';
-import {StackedBarChart} from 'react-native-chart-kit';
+import {StackedBarChartView} from '../components/StackedBarChartView';
 import {useRootNavigation} from '../navigations/RootNavigation';
 import {useAccountBookHistoryItem} from '../hooks/useAccountBookHistoryItem';
 import {AccountBookHistory} from '../data/AccountBookHistory';
 import {SafeAreaView} from 'react-native-safe-area-context';
+import {SegmentToggle} from '../components/SegmentToggle';
+import {EmptyState} from '../components/EmptyState';
+import colors from '../theme/colors';
 
 type MonthlySummary = {
   key: string;
@@ -166,47 +169,14 @@ export const MonthlyScreen: React.FC = () => {
         ) : (
           <View style={{flex: 1}}>
             {/* 기간 토글 */}
-            <View
-              style={{
-                flexDirection: 'row',
-                alignSelf: 'center',
-                marginBottom: 12,
-                borderRadius: 999,
-                borderWidth: 1,
-                borderColor: '#ced6e0',
-                overflow: 'hidden',
-              }}>
-              <Pressable
-                style={{
-                  paddingVertical: 6,
-                  paddingHorizontal: 16,
-                  backgroundColor: period === '3m' ? '#2f3542' : 'white',
-                }}
-                onPress={() => setPeriod('3m')}>
-                <Text
-                  style={{
-                    fontSize: 13,
-                    color: period === '3m' ? 'white' : '#2f3542',
-                  }}>
-                  최근 3개월
-                </Text>
-              </Pressable>
-              <Pressable
-                style={{
-                  paddingVertical: 6,
-                  paddingHorizontal: 16,
-                  backgroundColor: period === '1y' ? '#2f3542' : 'white',
-                }}
-                onPress={() => setPeriod('1y')}>
-                <Text
-                  style={{
-                    fontSize: 13,
-                    color: period === '1y' ? 'white' : '#2f3542',
-                  }}>
-                  올해 전체
-                </Text>
-              </Pressable>
-            </View>
+            <SegmentToggle
+              options={[
+                {value: '3m', label: '최근 3개월'},
+                {value: '1y', label: '올해 전체'},
+              ]}
+              selectedValue={period}
+              onValueChange={setPeriod}
+            />
 
             {/* 상단 요약 카드 */}
             <View
@@ -214,7 +184,7 @@ export const MonthlyScreen: React.FC = () => {
                 marginBottom: 16,
                 padding: 16,
                 borderRadius: 12,
-                backgroundColor: '#f1f2f6',
+                backgroundColor: colors.backgroundSecondary,
               }}>
               {monthlySummary.length > 0 ? (
                 <>
@@ -231,7 +201,7 @@ export const MonthlyScreen: React.FC = () => {
                         marginTop: 4,
                       }}>
                       <Text style={{fontSize: 14}}>{summary.label}</Text>
-                      <Text style={{fontSize: 14, color: 'gray'}}>
+                      <Text style={{fontSize: 14, color: colors.textSecondary}}>
                         사용 {summary.expense.toLocaleString()}원 / 수입{' '}
                         {summary.income.toLocaleString()}원
                       </Text>
@@ -239,7 +209,7 @@ export const MonthlyScreen: React.FC = () => {
                   ))}
                 </>
               ) : (
-                <Text style={{fontSize: 14, color: 'gray'}}>
+                <Text style={{fontSize: 14, color: colors.textSecondary}}>
                   최근 3개월에 대한 데이터가 없습니다.
                 </Text>
               )}
@@ -251,62 +221,23 @@ export const MonthlyScreen: React.FC = () => {
                 horizontal
                 bounces={false}
                 showsHorizontalScrollIndicator={false}>
-                <StackedBarChart
-                  data={{
-                    labels: chartData.labels,
-                    legend: ['사용', '수입'],
-                    data: chartData.data.map(([expense, income]) => [
-                      // 0일 때는 null로 설정하여 막대 위 값이 표시되지 않도록 함
-                      expense === 0 ? (null as any) : expense,
-                      income === 0 ? (null as any) : income,
-                    ]) as any,
-                    barColors: ['#ff6b6b', '#4ecdc4'],
-                  }}
-                  width={Math.max(
-                    period === '1y' ? chartData.labels.length * 50 : width,
-                    chartData.labels.length * 50,
-                  )}
-                  height={260}
-                  hideLegend={false}
-                  chartConfig={{
-                    backgroundColor: '#ffffff',
-                    backgroundGradientFrom: '#f1f2f6',
-                    backgroundGradientTo: '#dfe4ea',
-                    color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-                    barPercentage: 0.7,
-                    decimalPlaces: 0,
-                    paddingRight: 0,
-                    formatYLabel: (value: string) => {
-                      const num = parseFloat(value);
-                      if (isNaN(num) || num === 0) {
-                        return '';
-                      }
-                      return value;
-                    },
-                    formatTopBarValue: (value: number) => {
-                      // 0일 때는 빈 문자열 반환하여 막대 위 값 숨김
-                      if (value === 0 || value < 0.01) {
-                        return '';
-                      }
-                      return Math.round(value).toString();
-                    },
-                  }}
-                  style={{
-                    borderRadius: 12,
-                  }}
-                />
+                <View style={{borderRadius: 12, overflow: 'hidden'}}>
+                  <StackedBarChartView
+                    labels={chartData.labels}
+                    data={chartData.data}
+                    width={Math.max(
+                      period === '1y' ? chartData.labels.length * 50 : width,
+                      chartData.labels.length * 50,
+                    )}
+                    height={260}
+                    hideLegend={false}
+                    barPercentage={0.7}
+                    paddingRight={0}
+                  />
+                </View>
               </ScrollView>
             ) : (
-              <View
-                style={{
-                  height: 260,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}>
-                <Text style={{fontSize: 14, color: 'gray'}}>
-                  표시할 데이터가 없습니다.
-                </Text>
-              </View>
+              <EmptyState message="표시할 데이터가 없습니다." height={260} />
             )}
           </View>
         )}

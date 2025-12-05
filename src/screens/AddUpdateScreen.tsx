@@ -1,22 +1,16 @@
 import React, {useCallback, useState} from 'react';
-import {
-  Alert,
-  Image,
-  Modal,
-  Pressable,
-  ScrollView,
-  Text,
-  View,
-} from 'react-native';
+import {Alert, Modal, Pressable, ScrollView, View} from 'react-native';
 import {Header} from '../components/Header/Header';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
-import {faClose, faPlus} from '@fortawesome/free-solid-svg-icons';
+import {faClose} from '@fortawesome/free-solid-svg-icons';
 import {useRootNavigation, useRootRoute} from '../navigations/RootNavigation';
 import {AccountBookHistory} from '../data/AccountBookHistory';
 import {Spacer} from '../components/Spacer';
-import {SingleLineInput} from '../components/SingleLineInput';
-import {convertToDateString} from '../utils/DateUtils';
-import {MultiLineInput} from '../components/MultiLineInput';
+import {SingleLineInput, MultiLineInput} from '../components/Input';
+import {TypeSelector} from '../components/TypeSelector';
+import {PhotoPicker} from '../components/PhotoPicker';
+import {DatePickerButton} from '../components/DatePickerButton';
+import {Button} from '../components/Button';
 import {useAccountBookHistoryItem} from '../hooks/useAccountBookHistoryItem';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {useFocusEffect} from '@react-navigation/native';
@@ -98,7 +92,6 @@ export const AddUpdateScreen: React.FC = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const onPressCalandar = useCallback(() => {
     setModalVisible(true);
-    // navigation.navigate('CalendarSelect', {});
   }, []);
 
   useFocusEffect(
@@ -109,7 +102,6 @@ export const AddUpdateScreen: React.FC = () => {
           ...prevState,
           date: params.selectedDate,
         }));
-        // Clear the selectedDate after using it
         navigation.setParams({...params, selectedDate: undefined} as any);
       }
     }, [routes.params, navigation]),
@@ -155,51 +147,11 @@ export const AddUpdateScreen: React.FC = () => {
       <ScrollView
         style={{flex: 1}}
         contentContainerStyle={{paddingTop: 12, paddingHorizontal: 24}}>
-        <View style={{flexDirection: 'row'}}>
-          <View style={{flex: 1}}>
-            <Pressable onPress={() => onPressType('사용')}>
-              <View
-                style={{
-                  backgroundColor: item.type === '사용' ? 'black' : 'white',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  paddingVertical: 12,
-                  borderTopLeftRadius: 12,
-                  borderBottomLeftRadius: 12,
-                }}>
-                <Text
-                  style={[
-                    item.type === '사용' ? {color: 'white'} : {color: 'black'},
-                    {fontSize: 16},
-                  ]}>
-                  사용
-                </Text>
-              </View>
-            </Pressable>
-          </View>
-
-          <View style={{flex: 1}}>
-            <Pressable onPress={() => onPressType('수입')}>
-              <View
-                style={{
-                  backgroundColor: item.type === '수입' ? 'black' : 'white',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  paddingVertical: 12,
-                  borderTopRightRadius: 12,
-                  borderBottomRightRadius: 12,
-                }}>
-                <Text
-                  style={[
-                    item.type === '수입' ? {color: 'white'} : {color: 'black'},
-                    {fontSize: 20},
-                  ]}>
-                  수입
-                </Text>
-              </View>
-            </Pressable>
-          </View>
-        </View>
+        <TypeSelector
+          selectedType={item.type}
+          onSelectType={onPressType}
+          disabled={routes.name === 'Update'}
+        />
 
         <Spacer space={20} />
         <View style={{flexDirection: 'row', alignItems: 'center'}}>
@@ -212,54 +164,15 @@ export const AddUpdateScreen: React.FC = () => {
               fontSize={16}
             />
             <Spacer space={24} />
-            <Pressable onPress={onPressCalandar}>
-              <View
-                style={{
-                  borderColor: 'lightgray',
-                  borderWidth: 1,
-                  paddingVertical: 8,
-                  paddingHorizontal: 12,
-                }}>
-                <Text
-                  style={[
-                    item.date === 0 ? {color: 'lightgray'} : {color: 'gray'},
-                    {fontSize: 16},
-                  ]}>
-                  {item.date !== 0
-                    ? convertToDateString(item.date)
-                    : '날짜를 선택하세요'}{' '}
-                </Text>
-              </View>
-            </Pressable>
+            <DatePickerButton
+              date={item.date}
+              onPress={onPressCalandar}
+              placeholder="날짜를 선택하세요"
+            />
           </View>
 
           <View style={{marginLeft: 24}}>
-            <Pressable onPress={onPressPhoto}>
-              {item.photoUrl ? (
-                <Image
-                  source={{uri: item?.photoUrl}}
-                  width={100}
-                  height={100}
-                  style={{
-                    borderRadius: 12,
-                    backgroundColor: 'lightgray',
-                    alignItems: 'center',
-                  }}
-                />
-              ) : (
-                <View
-                  style={{
-                    width: 100,
-                    height: 100,
-                    borderRadius: 12,
-                    backgroundColor: 'lightgray',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}>
-                  <FontAwesomeIcon icon={faPlus} size={24} color="gray" />
-                </View>
-              )}
-            </Pressable>
+            <PhotoPicker photoUrl={item.photoUrl} onPress={onPressPhoto} />
           </View>
         </View>
 
@@ -274,20 +187,11 @@ export const AddUpdateScreen: React.FC = () => {
         />
 
         <Spacer space={64} />
-        <Pressable onPress={onPressSave}>
-          <View
-            style={{
-              paddingVertical: 12,
-              backgroundColor: 'black',
-              alignItems: 'center',
-              justifyContent: 'center',
-              borderRadius: 8,
-            }}>
-            <Text style={{fontSize: 16, color: 'white'}}>
-              {routes.name === 'Add' ? '저장하기' : '수정하기'}
-            </Text>
-          </View>
-        </Pressable>
+        <Button
+          title={routes.name === 'Add' ? '저장하기' : '수정하기'}
+          onPress={onPressSave}
+          variant="primary"
+        />
         <Modal
           visible={modalVisible}
           transparent={true}

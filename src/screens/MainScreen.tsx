@@ -17,10 +17,13 @@ import {AccountBookHistoryListItemView} from '../components/AccountHistoryListIt
 import {SafeAreaView, useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useAccountBookHistoryItem} from '../hooks/useAccountBookHistoryItem';
 import {useFocusEffect} from '@react-navigation/native';
-import {StackedBarChart} from 'react-native-chart-kit';
+import {StackedBarChartView} from '../components/StackedBarChartView';
 import {convertToDateString} from '../utils/DateUtils';
 import {RectButton, Swipeable} from 'react-native-gesture-handler';
 import {useAuth} from '../hooks/useAuth';
+import {EmptyState} from '../components/EmptyState';
+import {confirmDialog} from '../utils/confirmDialog';
+import colors from '../theme/colors';
 
 export const MainScreen: React.FC = () => {
   const safeAreaInset = useSafeAreaInsets();
@@ -130,31 +133,27 @@ export const MainScreen: React.FC = () => {
       if (typeof history.id === 'undefined') {
         return;
       }
-      Alert.alert('삭제', '해당 내역을 삭제하시겠어요?', [
-        {text: '취소', style: 'cancel'},
-        {
-          text: '삭제',
-          style: 'destructive',
-          onPress: async () => {
-            await deleteItem(history.id as number);
-            fetchList();
-          },
+      confirmDialog({
+        title: '삭제',
+        message: '해당 내역을 삭제하시겠어요?',
+        confirmText: '삭제',
+        onConfirm: async () => {
+          await deleteItem(history.id as number);
+          fetchList();
         },
-      ]);
+      });
     },
     [deleteItem, fetchList],
   );
   const handleLogout = useCallback(async () => {
-    Alert.alert('로그아웃', '정말 로그아웃 하시겠습니까?', [
-      {text: '취소', style: 'cancel'},
-      {
-        text: '로그아웃',
-        style: 'destructive',
-        onPress: async () => {
-          await signOut();
-        },
+    confirmDialog({
+      title: '로그아웃',
+      message: '정말 로그아웃 하시겠습니까?',
+      confirmText: '로그아웃',
+      onConfirm: async () => {
+        await signOut();
       },
-    ]);
+    });
   }, [signOut]);
 
   return (
@@ -162,7 +161,11 @@ export const MainScreen: React.FC = () => {
       <Header>
         <Header.Title title="가계부" />
         <Pressable onPress={handleLogout}>
-          <FontAwesomeIcon icon={faSignOutAlt} size={20} color="gray" />
+          <FontAwesomeIcon
+            icon={faSignOutAlt}
+            size={20}
+            color={colors.textSecondary}
+          />
         </Pressable>
       </Header>
       <View>
@@ -190,62 +193,29 @@ export const MainScreen: React.FC = () => {
               }
               navigation.push('MonthlyAverage');
             }}>
-            <Text style={{color: 'blue', fontSize: 14}}>자세히 보기</Text>
+            <Text style={{color: colors.primary, fontSize: 14}}>
+              자세히 보기
+            </Text>
           </Pressable>
         </View>
         {dailyChart.hasData ? (
           <ScrollView
             horizontal
-            style={{backgroundColor: '#f1f2f6'}}
+            style={{backgroundColor: colors.backgroundSecondary}}
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={{
               paddingVertical: 8,
             }}>
-            <StackedBarChart
-              data={{
-                labels: dailyChart.labels,
-                legend: ['사용', '수입'],
-                data: dailyChart.data.map(([expense, income]) => [
-                  // 0일 때는 null로 설정하여 막대 위 값이 표시되지 않도록 함
-                  expense === 0 ? (null as any) : expense,
-                  income === 0 ? (null as any) : income,
-                ]) as any,
-                barColors: ['#ff6b6b', '#4ecdc4'],
-              }}
-              hideLegend
+            <StackedBarChartView
+              labels={dailyChart.labels}
+              data={dailyChart.data}
               width={Math.max(width, dailyChart.labels.length * 40)}
               height={220}
-              chartConfig={{
-                backgroundColor: '#ffffff',
-                backgroundGradientFrom: '#f1f2f6',
-                backgroundGradientTo: '#dfe4ea',
-                color: (opacity = 1) => `rgba(0,0,0,${opacity})`,
-                decimalPlaces: 0,
-                formatYLabel: (value: string) => {
-                  const num = parseFloat(value);
-                  if (isNaN(num) || num === 0) {
-                    return '';
-                  }
-                  return value;
-                },
-                formatTopBarValue: (value: number) => {
-                  if (value <= 0) {
-                    return '';
-                  }
-                  return value.toString();
-                },
-              }}
+              hideLegend
             />
           </ScrollView>
         ) : (
-          <View
-            style={{
-              height: 220,
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}>
-            <Text>이번 달 일별 데이터가 없습니다.</Text>
-          </View>
+          <EmptyState message="이번 달 일별 데이터가 없습니다." height={220} />
         )}
       </View>
       <FlatList
@@ -264,7 +234,7 @@ export const MainScreen: React.FC = () => {
                 <Text style={{fontSize: 16, fontWeight: '600'}}>
                   {dateLabel}
                 </Text>
-                <Text style={{fontSize: 14, color: 'gray'}}>
+                <Text style={{fontSize: 14, color: colors.textSecondary}}>
                   사용 {item.totalExpense.toLocaleString()}원 / 수입{' '}
                   {item.totalIncome.toLocaleString()}원
                 </Text>
@@ -305,7 +275,7 @@ export const MainScreen: React.FC = () => {
                           <FontAwesomeIcon
                             icon={faTrash}
                             size={20}
-                            color="red"
+                            color={colors.danger}
                           />
                         </RectButton>
                       </View>
@@ -338,7 +308,7 @@ export const MainScreen: React.FC = () => {
             width: 50,
             height: 50,
             borderRadius: 25,
-            backgroundColor: 'red',
+            backgroundColor: colors.primary,
             alignItems: 'center',
             justifyContent: 'center',
           }}>

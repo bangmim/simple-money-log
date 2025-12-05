@@ -7,15 +7,15 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  TextInput,
 } from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {Header} from '../components/Header/Header';
-import {SingleLineInput} from '../components/SingleLineInput';
+import {SingleLineInput} from '../components/Input';
 import {Spacer} from '../components/Spacer';
 import {useAuth} from '../hooks/useAuth';
-import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
-import {faEye, faEyeSlash} from '@fortawesome/free-solid-svg-icons';
+import {PasswordInput} from '../components/PasswordInput';
+import {Button} from '../components/Button';
+import colors from '../theme/colors';
 
 export const LoginScreen: React.FC = () => {
   const {signInWithUsername, signUp} = useAuth();
@@ -25,7 +25,6 @@ export const LoginScreen: React.FC = () => {
   const [password, setPassword] = useState('');
   const [nickname, setNickname] = useState(''); // 회원가입 시 닉네임
   const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
   const [passwordFocused, setPasswordFocused] = useState(false);
 
   const handleSubmit = useCallback(async () => {
@@ -96,7 +95,6 @@ export const LoginScreen: React.FC = () => {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <ScrollView
           contentContainerStyle={{
-            flexGrow: 1,
             marginHorizontal: 24,
           }}>
           <Header>
@@ -109,7 +107,12 @@ export const LoginScreen: React.FC = () => {
             <Text style={{fontSize: 24, fontWeight: 'bold', marginBottom: 8}}>
               {isSignUp ? '새 계정 만들기' : '가계부에 오신 것을 환영합니다'}
             </Text>
-            <Text style={{fontSize: 16, color: 'gray', marginBottom: 32}}>
+            <Text
+              style={{
+                fontSize: 16,
+                color: colors.textSecondary,
+                marginBottom: 32,
+              }}>
               {isSignUp
                 ? '이메일, 아이디, 비밀번호를 입력해주세요 (닉네임은 선택사항)'
                 : '아이디와 비밀번호를 입력해주세요'}
@@ -142,65 +145,30 @@ export const LoginScreen: React.FC = () => {
               </>
             )}
 
-            <View
-              style={{
-                alignSelf: 'stretch',
-                paddingHorizontal: 12,
-                paddingVertical: 8,
-                borderRadius: 4,
-                borderWidth: 1,
-                borderColor: passwordFocused ? 'black' : 'gray',
-                flexDirection: 'row',
-                alignItems: 'center',
-              }}>
-              <TextInput
-                autoCorrect={false}
-                autoCapitalize="none"
-                value={password}
-                onChangeText={setPassword}
-                placeholder="비밀번호 (6자 이상)"
-                secureTextEntry={!showPassword}
-                style={{
-                  fontSize: 16,
-                  paddingVertical: 0,
-                  flex: 1,
-                }}
-                onFocus={() => setPasswordFocused(true)}
-                onBlur={() => setPasswordFocused(false)}
-              />
-              <Pressable
-                onPress={() => setShowPassword(!showPassword)}
-                style={{padding: 4}}>
-                <FontAwesomeIcon
-                  icon={showPassword ? faEyeSlash : faEye}
-                  size={20}
-                  color="gray"
-                />
-              </Pressable>
-            </View>
+            <PasswordInput
+              value={password}
+              onChangeText={setPassword}
+              placeholder="비밀번호 (6자 이상)"
+              onFocus={() => setPasswordFocused(true)}
+              onBlur={() => setPasswordFocused(false)}
+              focused={passwordFocused}
+            />
 
             <Spacer space={32} />
 
-            <Pressable
+            <Button
+              title={isSignUp ? '회원가입' : '로그인'}
               onPress={handleSubmit}
               disabled={loading}
-              style={{
-                backgroundColor: loading ? 'gray' : 'black',
-                paddingVertical: 16,
-                borderRadius: 8,
-                alignItems: 'center',
-              }}>
-              <Text style={{color: 'white', fontSize: 16, fontWeight: '600'}}>
-                {loading ? '처리 중...' : isSignUp ? '회원가입' : '로그인'}
-              </Text>
-            </Pressable>
+              loading={loading}
+            />
 
             <Spacer space={16} />
 
             <Pressable
               onPress={() => setIsSignUp(!isSignUp)}
               style={{alignItems: 'center'}}>
-              <Text style={{color: 'gray', fontSize: 14}}>
+              <Text style={{color: colors.textSecondary, fontSize: 14}}>
                 {isSignUp
                   ? '이미 계정이 있으신가요? 로그인'
                   : '계정이 없으신가요? 회원가입'}

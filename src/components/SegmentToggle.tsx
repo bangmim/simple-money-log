@@ -1,0 +1,76 @@
+import React from 'react';
+import {Pressable, Text, View, StyleSheet} from 'react-native';
+import colors from '../theme/colors';
+
+type SegmentOption<T extends string> = {
+  value: T;
+  label: string;
+};
+
+type SegmentToggleProps<T extends string> = {
+  options: SegmentOption<T>[];
+  selectedValue: T;
+  onValueChange: (value: T) => void;
+};
+
+export const SegmentToggle = <T extends string>({
+  options,
+  selectedValue,
+  onValueChange,
+}: SegmentToggleProps<T>) => {
+  return (
+    <View style={styles.container}>
+      {options.map((option, index) => {
+        const isSelected = option.value === selectedValue;
+        const isFirst = index === 0;
+        const isLast = index === options.length - 1;
+
+        return (
+          <Pressable
+            key={option.value}
+            style={[
+              styles.button,
+              isFirst && styles.firstButton,
+              isLast && styles.lastButton,
+              isSelected && styles.selectedButton,
+            ]}
+            onPress={() => onValueChange(option.value)}>
+            <Text
+              style={[styles.buttonText, isSelected && styles.selectedText]}>
+              {option.label}
+            </Text>
+          </Pressable>
+        );
+      })}
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    alignSelf: 'center',
+    marginBottom: 12,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: colors.border,
+    overflow: 'hidden',
+  },
+  button: {
+    paddingVertical: 6,
+    paddingHorizontal: 16,
+    backgroundColor: colors.background,
+  },
+  firstButton: {},
+  lastButton: {},
+  selectedButton: {
+    backgroundColor: colors.primary,
+  },
+  buttonText: {
+    fontSize: 13,
+    color: colors.textPrimary,
+  },
+  selectedText: {
+    color: colors.textInverse,
+  },
+});
