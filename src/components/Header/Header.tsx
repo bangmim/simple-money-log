@@ -1,6 +1,7 @@
 import React, {ReactElement} from 'react';
-import {View, useWindowDimensions} from 'react-native';
+import {View, StyleSheet} from 'react-native';
 import {Spacer} from '../Spacer';
+import {scaleWidth} from '../../utils/responsive';
 import {HeaderTitle} from './HeaderTitle';
 import {HeaderGroup} from './HeaderGroup';
 import {HeaderIcon} from './HeaderIcon';
@@ -16,19 +17,17 @@ export const Header: React.FC<{
   children: ReactElement | ReactElement[];
 }> &
   CompoundComposition = props => {
-  const {width} = useWindowDimensions();
-
   return (
     <View
       style={{
-        width: width,
         flexDirection: 'row',
-        height: 56,
+        height: scaleWidth(56),
         borderBottomColor: 'gray',
-        borderBottomWidth: 1,
+        borderBottomWidth: StyleSheet.hairlineWidth,
         alignItems: 'center',
+        marginHorizontal: scaleWidth(24),
       }}>
-      <Spacer horizontal={true} space={12} />
+      <Spacer horizontal={true} space={scaleWidth(12)} />
       <View
         style={{
           flex: 1,
@@ -37,7 +36,7 @@ export const Header: React.FC<{
         }}>
         {props.children}
       </View>
-      <Spacer horizontal={true} space={12} />
+      <Spacer horizontal={true} space={scaleWidth(12)} />
     </View>
   );
 };

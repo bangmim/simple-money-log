@@ -3,6 +3,7 @@ import {Image, Pressable, View, StyleSheet} from 'react-native';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {faPlus} from '@fortawesome/free-solid-svg-icons';
 import colors from '../theme/colors';
+import {scaleWidth} from '../utils/responsive';
 
 type PhotoPickerProps = {
   photoUrl: string | null;
@@ -13,7 +14,7 @@ type PhotoPickerProps = {
 export const PhotoPicker: React.FC<PhotoPickerProps> = ({
   photoUrl,
   onPress,
-  size = 100,
+  size = scaleWidth(100),
 }) => {
   return (
     <Pressable onPress={onPress}>
@@ -26,7 +27,7 @@ export const PhotoPicker: React.FC<PhotoPickerProps> = ({
         <View style={[styles.placeholder, {width: size, height: size}]}>
           <FontAwesomeIcon
             icon={faPlus}
-            size={24}
+            size={scaleWidth(24)}
             color={colors.textSecondary}
           />
         </View>
@@ -37,11 +38,11 @@ export const PhotoPicker: React.FC<PhotoPickerProps> = ({
 
 const styles = StyleSheet.create({
   image: {
-    borderRadius: 12,
+    borderRadius: scaleWidth(12),
     backgroundColor: colors.backgroundTertiary,
   },
   placeholder: {
-    borderRadius: 12,
+    borderRadius: scaleWidth(12),
     backgroundColor: colors.backgroundTertiary,
     alignItems: 'center',
     justifyContent: 'center',

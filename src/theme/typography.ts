@@ -2,6 +2,7 @@
  * 앱 전체에서 사용하는 타이포그래피 상수
  */
 import {Platform} from 'react-native';
+import {scaleWidth} from '../utils/responsive';
 
 // 프리텐다드 폰트 설정
 // iOS는 'Pretendard', Android는 'Pretendard-Regular' 또는 시스템 폰트 사용
@@ -22,58 +23,58 @@ export const getFontFamily = () => {
 // iOS는 숫자 문자열 지원, Android는 'normal', 'bold'만 확실히 지원
 export const textStyles = {
   h1: {
-    fontSize: 32,
+    fontSize: scaleWidth(32),
     fontWeight: '700' as const, // Bold
     fontFamily: getFontFamily(),
   },
   h2: {
-    fontSize: 24,
+    fontSize: scaleWidth(24),
     fontWeight: '700' as const, // Bold
     fontFamily: getFontFamily(),
   },
   h3: {
-    fontSize: 20,
+    fontSize: scaleWidth(20),
     fontWeight: '600' as const, // SemiBold
     fontFamily: getFontFamily(),
   },
   body: {
-    fontSize: 16,
+    fontSize: scaleWidth(16),
     fontWeight: '400' as const, // Regular
     fontFamily: getFontFamily(),
   },
   bodyMedium: {
-    fontSize: 16,
+    fontSize: scaleWidth(16),
     fontWeight: '500' as const, // Medium
     fontFamily: getFontFamily(),
   },
   bodyBold: {
-    fontSize: 16,
+    fontSize: scaleWidth(16),
     fontWeight: '700' as const, // Bold
     fontFamily: getFontFamily(),
   },
   caption: {
-    fontSize: 14,
+    fontSize: scaleWidth(14),
     fontWeight: '400' as const, // Regular
     fontFamily: getFontFamily(),
   },
   captionMedium: {
-    fontSize: 14,
+    fontSize: scaleWidth(14),
     fontWeight: '500' as const, // Medium
     fontFamily: getFontFamily(),
   },
   captionBold: {
-    fontSize: 14,
+    fontSize: scaleWidth(14),
     fontWeight: '700' as const, // Bold
     fontFamily: getFontFamily(),
   },
   small: {
-    fontSize: 12,
+    fontSize: scaleWidth(12),
     fontWeight: '400' as const, // Regular
     fontFamily: getFontFamily(),
   },
   // 추가 스타일
   title: {
-    fontSize: 18,
+    fontSize: scaleWidth(18),
     fontWeight: '600' as const, // SemiBold
     fontFamily: getFontFamily(),
   },

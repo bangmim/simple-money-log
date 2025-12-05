@@ -3,6 +3,7 @@ import {Pressable, Text, View, StyleSheet} from 'react-native';
 import {AccountBookHistory} from '../data/AccountBookHistory';
 import colors from '../theme/colors';
 import {textStyles} from '../theme/typography';
+import {scaleWidth} from '../utils/responsive';
 
 type TypeSelectorProps = {
   selectedType: AccountBookHistory['type'];
@@ -68,16 +69,16 @@ const styles = StyleSheet.create({
   button: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 12,
+    paddingVertical: scaleWidth(12),
     backgroundColor: colors.background,
   },
   leftButton: {
-    borderTopLeftRadius: 12,
-    borderBottomLeftRadius: 12,
+    borderTopLeftRadius: scaleWidth(12),
+    borderBottomLeftRadius: scaleWidth(12),
   },
   rightButton: {
-    borderTopRightRadius: 12,
-    borderBottomRightRadius: 12,
+    borderTopRightRadius: scaleWidth(12),
+    borderBottomRightRadius: scaleWidth(12),
   },
   selectedButton: {
     backgroundColor: colors.primary,

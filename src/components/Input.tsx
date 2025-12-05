@@ -2,6 +2,7 @@ import React, {useState} from 'react';
 import {View, TextInput, TextInputProps, StyleSheet} from 'react-native';
 import colors from '../theme/colors';
 import {getFontFamily} from '../theme/typography';
+import {scaleWidth} from '../utils/responsive';
 
 type InputProps = {
   value: string;
@@ -20,7 +21,7 @@ export const Input: React.FC<InputProps> = ({
   placeholder,
   keyboardType,
   onSubmitEditing,
-  fontSize = 20,
+  fontSize = scaleWidth(20),
   multiline = false,
   height,
 }) => {
@@ -52,9 +53,9 @@ export const Input: React.FC<InputProps> = ({
 const styles = StyleSheet.create({
   container: {
     alignSelf: 'stretch',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 4,
+    paddingHorizontal: scaleWidth(12),
+    paddingVertical: scaleWidth(8),
+    borderRadius: scaleWidth(4),
     borderWidth: 1,
     borderColor: colors.border,
   },

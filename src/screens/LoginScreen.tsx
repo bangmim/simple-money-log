@@ -17,6 +17,7 @@ import {PasswordInput} from '../components/PasswordInput';
 import {Button} from '../components/Button';
 import colors from '../theme/colors';
 import {Typography} from '../components/Typography';
+import {scaleWidth} from '../utils/responsive';
 
 export const LoginScreen: React.FC = () => {
   const {signInWithUsername, signUp} = useAuth();
@@ -94,32 +95,33 @@ export const LoginScreen: React.FC = () => {
       <KeyboardAvoidingView
         style={{flex: 1}}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+        <Header>
+          <Header.Title title={isSignUp ? '회원가입' : '로그인'} />
+        </Header>
         <ScrollView
           contentContainerStyle={{
-            marginHorizontal: 24,
+            marginHorizontal: scaleWidth(24),
           }}>
-          <Header>
-            <Header.Title title={isSignUp ? '회원가입' : '로그인'} />
-          </Header>
-
-          <Spacer space={48} />
+          <Spacer space={scaleWidth(48)} />
 
           <View>
             <Typography
               variant="h2"
               style={{
-                marginBottom: 8,
+                marginBottom: scaleWidth(8),
               }}>
-              {isSignUp ? '새 계정 만들기' : '가계부에 오신 것을 환영합니다'}
+              {isSignUp
+                ? '새 계정 만들기'
+                : '딱, 가계부에 오신 것을 환영합니다'}
             </Typography>
             <Typography
               variant="body"
               color={colors.textSecondary}
               style={{
-                marginBottom: 32,
+                marginBottom: scaleWidth(32),
               }}>
               {isSignUp
-                ? '이메일, 아이디, 비밀번호를 입력해주세요 (닉네임은 선택사항)'
+                ? '이메일, 아이디, 비밀번호를 입력해주세요'
                 : '아이디와 비밀번호를 입력해주세요'}
             </Typography>
 
@@ -127,9 +129,9 @@ export const LoginScreen: React.FC = () => {
               value={username}
               onChangeText={setUsername}
               placeholder="아이디"
-              fontSize={16}
+              fontSize={scaleWidth(16)}
             />
-            <Spacer space={16} />
+            <Spacer space={scaleWidth(16)} />
             {isSignUp && (
               <>
                 <SingleLineInput
@@ -137,16 +139,16 @@ export const LoginScreen: React.FC = () => {
                   onChangeText={setEmail}
                   placeholder="이메일"
                   keyboardType="email-address"
-                  fontSize={16}
+                  fontSize={scaleWidth(16)}
                 />
-                <Spacer space={16} />
+                <Spacer space={scaleWidth(16)} />
                 <SingleLineInput
                   value={nickname}
                   onChangeText={setNickname}
                   placeholder="닉네임 (선택)"
-                  fontSize={16}
+                  fontSize={scaleWidth(16)}
                 />
-                <Spacer space={16} />
+                <Spacer space={scaleWidth(16)} />
               </>
             )}
 
@@ -159,7 +161,7 @@ export const LoginScreen: React.FC = () => {
               focused={passwordFocused}
             />
 
-            <Spacer space={32} />
+            <Spacer space={scaleWidth(32)} />
 
             <Button
               title={isSignUp ? '회원가입' : '로그인'}
@@ -168,7 +170,7 @@ export const LoginScreen: React.FC = () => {
               loading={loading}
             />
 
-            <Spacer space={16} />
+            <Spacer space={scaleWidth(16)} />
 
             <Pressable
               onPress={() => setIsSignUp(!isSignUp)}

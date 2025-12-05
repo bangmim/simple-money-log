@@ -4,6 +4,7 @@ import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {faEye, faEyeSlash} from '@fortawesome/free-solid-svg-icons';
 import colors from '../theme/colors';
 import {getFontFamily} from '../theme/typography';
+import {scaleWidth} from '../utils/responsive';
 
 type PasswordInputProps = {
   value: string;
@@ -52,7 +53,7 @@ export const PasswordInput: React.FC<PasswordInputProps> = ({
         style={styles.iconButton}>
         <FontAwesomeIcon
           icon={showPassword ? faEyeSlash : faEye}
-          size={20}
+          size={scaleWidth(20)}
           color={colors.textSecondary}
         />
       </Pressable>
@@ -63,9 +64,9 @@ export const PasswordInput: React.FC<PasswordInputProps> = ({
 const styles = StyleSheet.create({
   container: {
     alignSelf: 'stretch',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 4,
+    paddingHorizontal: scaleWidth(12),
+    paddingVertical: scaleWidth(8),
+    borderRadius: scaleWidth(4),
     borderWidth: 1,
     borderColor: colors.border,
     flexDirection: 'row',
@@ -75,12 +76,12 @@ const styles = StyleSheet.create({
     borderColor: colors.borderFocused,
   },
   input: {
-    fontSize: 16,
+    fontSize: scaleWidth(16),
     paddingVertical: 0,
     flex: 1,
     fontFamily: getFontFamily(),
   },
   iconButton: {
-    padding: 4,
+    padding: scaleWidth(4),
   },
 });

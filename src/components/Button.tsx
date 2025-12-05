@@ -2,6 +2,7 @@ import React from 'react';
 import {Pressable, Text, View, StyleSheet} from 'react-native';
 import colors from '../theme/colors';
 import {textStyles} from '../theme/typography';
+import {scaleWidth} from '../utils/responsive';
 
 type ButtonProps = {
   title: string;
@@ -44,10 +45,10 @@ export const Button: React.FC<ButtonProps> = ({
 
 const styles = StyleSheet.create({
   button: {
-    paddingVertical: 12,
+    paddingVertical: scaleWidth(12),
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 8,
+    borderRadius: scaleWidth(8),
   },
   buttonText: {
     ...textStyles.bodyBold,

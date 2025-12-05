@@ -4,7 +4,6 @@ import {Header} from '../components/Header/Header';
 import {faClose} from '@fortawesome/free-solid-svg-icons';
 import {useRootNavigation, useRootRoute} from '../navigations/RootNavigation';
 import {Spacer} from '../components/Spacer';
-import {convertToDateString} from '../utils/DateUtils';
 import {AccountBookHistory} from '../data/AccountBookHistory';
 import {useAccountBookHistoryItem} from '../hooks/useAccountBookHistoryItem';
 import {TypeSelector} from '../components/TypeSelector';
@@ -16,6 +15,7 @@ import colors from '../theme/colors';
 import {spacing} from '../theme/spacing';
 import {Typography} from '../components/Typography';
 import {SafeAreaView} from 'react-native-safe-area-context';
+import {scaleWidth} from '../utils/responsive';
 
 export const DetailScreen: React.FC = () => {
   const navigation = useRootNavigation();
@@ -67,7 +67,7 @@ export const DetailScreen: React.FC = () => {
       <ScrollView
         style={{flex: 1, backgroundColor: colors.background}}
         contentContainerStyle={{
-          paddingTop: 12,
+          paddingTop: scaleWidth(12),
           paddingHorizontal: spacing.horizontal,
         }}>
         <TypeSelector
@@ -76,7 +76,7 @@ export const DetailScreen: React.FC = () => {
           disabled
         />
 
-        <Spacer space={20} />
+        <Spacer space={scaleWidth(20)} />
 
         <View style={{flexDirection: 'row', alignItems: 'center'}}>
           <View style={{flex: 1}}>
@@ -85,8 +85,8 @@ export const DetailScreen: React.FC = () => {
                 style={{
                   borderColor: colors.border,
                   borderWidth: 1,
-                  paddingVertical: 8,
-                  paddingHorizontal: 12,
+                  paddingVertical: scaleWidth(8),
+                  paddingHorizontal: scaleWidth(12),
                 }}>
                 <Typography
                   variant="body"
@@ -98,7 +98,7 @@ export const DetailScreen: React.FC = () => {
               </View>
             </Pressable>
 
-            <Spacer space={24} />
+            <Spacer space={scaleWidth(24)} />
 
             <DatePickerButton
               date={item.date}
@@ -107,22 +107,22 @@ export const DetailScreen: React.FC = () => {
             />
           </View>
 
-          <View style={{marginLeft: 24}}>
+          <View style={{marginLeft: scaleWidth(24)}}>
             <PhotoPicker photoUrl={item.photoUrl} onPress={handleEditField} />
           </View>
         </View>
 
-        <Spacer space={12} />
+        <Spacer space={scaleWidth(12)} />
         <Pressable onPress={handleEditField}>
           <View
             style={{
               alignSelf: 'stretch',
-              paddingHorizontal: 12,
-              paddingVertical: 8,
-              borderRadius: 4,
+              paddingHorizontal: scaleWidth(12),
+              paddingVertical: scaleWidth(8),
+              borderRadius: scaleWidth(4),
               borderWidth: 1,
               borderColor: colors.border,
-              height: 100,
+              height: scaleWidth(100),
             }}>
             <Typography variant="h3" color={colors.textSecondary}>
               {item.comment}{' '}
@@ -130,11 +130,11 @@ export const DetailScreen: React.FC = () => {
           </View>
         </Pressable>
 
-        <Spacer space={64} />
+        <Spacer space={scaleWidth(64)} />
 
         <Button title="수정하기" onPress={onPressUpdate} variant="primary" />
 
-        <Spacer space={16} />
+        <Spacer space={scaleWidth(16)} />
 
         <Button title="삭제하기" onPress={onPressDelete} variant="danger" />
       </ScrollView>

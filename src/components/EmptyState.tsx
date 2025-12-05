@@ -1,6 +1,7 @@
 import React from 'react';
 import {View, StyleSheet} from 'react-native';
 import {Typography} from './Typography';
+import {scaleWidth} from '../utils/responsive';
 
 type EmptyStateProps = {
   message: string;
@@ -9,7 +10,7 @@ type EmptyStateProps = {
 
 export const EmptyState: React.FC<EmptyStateProps> = ({
   message,
-  height = 220,
+  height = scaleWidth(220),
 }) => {
   return (
     <View style={[styles.container, {height}]}>

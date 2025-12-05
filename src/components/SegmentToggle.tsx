@@ -2,6 +2,7 @@ import React from 'react';
 import {Pressable, Text, View, StyleSheet} from 'react-native';
 import colors from '../theme/colors';
 import {textStyles} from '../theme/typography';
+import {scaleWidth} from '../utils/responsive';
 
 type SegmentOption<T extends string> = {
   value: T;
@@ -51,15 +52,15 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignSelf: 'center',
-    marginBottom: 12,
-    borderRadius: 999,
+    marginBottom: scaleWidth(12),
+    borderRadius: scaleWidth(999),
     borderWidth: 1,
     borderColor: colors.border,
     overflow: 'hidden',
   },
   button: {
-    paddingVertical: 6,
-    paddingHorizontal: 16,
+    paddingVertical: scaleWidth(6),
+    paddingHorizontal: scaleWidth(16),
     backgroundColor: colors.background,
   },
   firstButton: {},
@@ -69,7 +70,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     ...textStyles.caption,
-    fontSize: 13, // 13px은 caption(14px)보다 작으므로 override
+    fontSize: scaleWidth(13), // 13px은 caption(14px)보다 작으므로 override
     color: colors.textPrimary,
   },
   selectedText: {

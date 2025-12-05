@@ -3,6 +3,7 @@ import {Pressable, Text, View, StyleSheet} from 'react-native';
 import {convertToDateString} from '../utils/DateUtils';
 import colors from '../theme/colors';
 import {textStyles} from '../theme/typography';
+import {scaleWidth} from '../utils/responsive';
 
 type DatePickerButtonProps = {
   date: number;
@@ -32,8 +33,8 @@ const styles = StyleSheet.create({
   container: {
     borderColor: colors.border,
     borderWidth: 1,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
+    paddingVertical: scaleWidth(8),
+    paddingHorizontal: scaleWidth(12),
   },
   text: {
     ...textStyles.body,

@@ -11,6 +11,7 @@ import {
 import {SafeAreaView} from 'react-native-safe-area-context';
 import colors from '../theme/colors';
 import {Typography} from '../components/Typography';
+import {scaleWidth} from '../utils/responsive';
 
 export const SelectPhotoScreen: React.FC = () => {
   const navigation = useRootNavigation<'SelectPhoto'>();
@@ -19,7 +20,7 @@ export const SelectPhotoScreen: React.FC = () => {
 
   useEffect(() => {
     CameraRoll.getPhotos({
-      first: 100,
+      first: scaleWidth(100),
       assetType: 'Photos',
     })
       .then(result => {
@@ -50,14 +51,18 @@ export const SelectPhotoScreen: React.FC = () => {
         data={photos}
         numColumns={3}
         keyExtractor={item => item.node.image.uri}
-        contentContainerStyle={{padding: 8}}
+        contentContainerStyle={{padding: scaleWidth(8)}}
         renderItem={({item}) => (
           <Pressable
             onPress={() => handleSelect(item.node.image.uri)}
-            style={{margin: 4}}>
+            style={{margin: scaleWidth(4)}}>
             <Image
               source={{uri: item.node.image.uri}}
-              style={{width: 110, height: 110, borderRadius: 8}}
+              style={{
+                width: scaleWidth(110),
+                height: scaleWidth(110),
+                borderRadius: scaleWidth(8),
+              }}
             />
           </Pressable>
         )}

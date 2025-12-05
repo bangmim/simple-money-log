@@ -26,6 +26,7 @@ import {confirmDialog} from '../utils/confirmDialog';
 import colors from '../theme/colors';
 import {spacing} from '../theme/spacing';
 import {Typography} from '../components/Typography';
+import {scaleWidth} from '../utils/responsive';
 
 export const MainScreen: React.FC = () => {
   const safeAreaInset = useSafeAreaInsets();
@@ -203,10 +204,11 @@ export const MainScreen: React.FC = () => {
         {dailyChart.hasData ? (
           <ScrollView
             horizontal
-            style={{backgroundColor: colors.backgroundSecondary}}
+            style={{backgroundColor: '#fff'}}
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={{
               paddingVertical: 8,
+              paddingHorizontal: scaleWidth(24),
             }}>
             <StackedBarChartView
               labels={dailyChart.labels}
@@ -301,22 +303,22 @@ export const MainScreen: React.FC = () => {
       <Pressable
         style={{
           position: 'absolute',
-          right: 12,
-          bottom: 12 + safeAreaInset.bottom,
+          right: scaleWidth(12),
+          bottom: scaleWidth(12) + safeAreaInset.bottom,
         }}
         onPress={() => {
           navigation.push('Add', {});
         }}>
         <View
           style={{
-            width: 50,
-            height: 50,
-            borderRadius: 25,
+            width: scaleWidth(50),
+            height: scaleWidth(50),
+            borderRadius: scaleWidth(25),
             backgroundColor: colors.primary,
             alignItems: 'center',
             justifyContent: 'center',
           }}>
-          <FontAwesomeIcon icon={faPlus} size={30} color="white" />
+          <FontAwesomeIcon icon={faPlus} size={scaleWidth(30)} color="white" />
         </View>
       </Pressable>
     </SafeAreaView>

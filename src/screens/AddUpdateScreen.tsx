@@ -17,6 +17,7 @@ import {useAccountBookHistoryItem} from '../hooks/useAccountBookHistoryItem';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {useFocusEffect} from '@react-navigation/native';
 import {CalendarSelectScreen} from './CalendarSelectScreen';
+import {scaleWidth} from '../utils/responsive';
 
 export const AddUpdateScreen: React.FC = () => {
   const navigation = useRootNavigation<'Add' | 'Update'>();
@@ -149,7 +150,7 @@ export const AddUpdateScreen: React.FC = () => {
       <ScrollView
         style={{flex: 1, backgroundColor: colors.background}}
         contentContainerStyle={{
-          paddingTop: 12,
+          paddingTop: scaleWidth(12),
           paddingHorizontal: spacing.horizontal,
         }}>
         <TypeSelector
@@ -158,7 +159,7 @@ export const AddUpdateScreen: React.FC = () => {
           disabled={routes.name === 'Update'}
         />
 
-        <Spacer space={20} />
+        <Spacer space={scaleWidth(20)} />
         <View style={{flexDirection: 'row', alignItems: 'center'}}>
           <View style={{flex: 1}}>
             <SingleLineInput
@@ -166,9 +167,9 @@ export const AddUpdateScreen: React.FC = () => {
               placeholder="금액을 입력해주세요"
               onChangeText={onChangePrice}
               keyboardType="number-pad"
-              fontSize={16}
+              fontSize={scaleWidth(16)}
             />
-            <Spacer space={24} />
+            <Spacer space={scaleWidth(24)} />
             <DatePickerButton
               date={item.date}
               onPress={onPressCalandar}
@@ -176,22 +177,22 @@ export const AddUpdateScreen: React.FC = () => {
             />
           </View>
 
-          <View style={{marginLeft: 24}}>
+          <View style={{marginLeft: scaleWidth(24)}}>
             <PhotoPicker photoUrl={item.photoUrl} onPress={onPressPhoto} />
           </View>
         </View>
 
-        <Spacer space={12} />
+        <Spacer space={scaleWidth(12)} />
 
         <MultiLineInput
           value={item.comment}
-          height={100}
+          height={scaleWidth(100)}
           onChangeText={onChangeComment}
           placeholder="어떤 일인가요?"
           onSubmitEditing={() => {}}
         />
 
-        <Spacer space={64} />
+        <Spacer space={scaleWidth(64)} />
         <Button
           title={routes.name === 'Add' ? '저장하기' : '수정하기'}
           onPress={onPressSave}

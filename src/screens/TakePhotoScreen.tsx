@@ -7,6 +7,7 @@ import {useRootNavigation, useRootRoute} from '../navigations/RootNavigation';
 import {Camera, useCameraDevice} from 'react-native-vision-camera';
 import {CameraRoll} from '@react-native-camera-roll/camera-roll';
 import colors from '../theme/colors';
+import {scaleWidth} from '../utils/responsive';
 
 export const TakePhotoScreen: React.FC = () => {
   const navigation = useRootNavigation<'TakePhoto'>();
@@ -29,7 +30,7 @@ export const TakePhotoScreen: React.FC = () => {
 
       await CameraRoll.save(path, {
         type: 'photo',
-        album: 'AccountBook',
+        album: 'simplemoneylog',
       });
 
       routes.params.onTakePhoto(path);
@@ -63,18 +64,18 @@ export const TakePhotoScreen: React.FC = () => {
           <Pressable onPress={onPressTakePhoto}>
             <View
               style={{
-                width: 100,
-                height: 100,
-                borderRadius: 50,
+                width: scaleWidth(100),
+                height: scaleWidth(100),
+                borderRadius: scaleWidth(50),
                 backgroundColor: 'black',
                 alignItems: 'center',
                 justifyContent: 'center',
               }}>
               <View
                 style={{
-                  width: 80,
-                  height: 80,
-                  borderRadius: 40,
+                  width: scaleWidth(80),
+                  height: scaleWidth(80),
+                  borderRadius: scaleWidth(40),
                   backgroundColor: 'white',
                 }}></View>
             </View>

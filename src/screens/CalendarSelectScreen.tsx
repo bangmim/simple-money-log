@@ -7,6 +7,7 @@ import {Calendar} from 'react-native-calendars';
 import {convertToDateString} from '../utils/DateUtils';
 import colors from '../theme/colors';
 import {Typography} from '../components/Typography';
+import {scaleWidth} from '../utils/responsive';
 
 const today = new Date();
 today.setHours(0);
@@ -78,9 +79,9 @@ export const CalendarSelectScreen: React.FC<CalendarSelectScreenProps> = ({
           <View
             style={{
               width: '88%',
-              borderRadius: 16,
+              borderRadius: scaleWidth(16),
               backgroundColor: colors.background,
-              paddingBottom: 16,
+              paddingBottom: scaleWidth(16),
               overflow: 'hidden',
             }}>
             <View
@@ -88,8 +89,8 @@ export const CalendarSelectScreen: React.FC<CalendarSelectScreenProps> = ({
                 flexDirection: 'row',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                paddingHorizontal: 16,
-                paddingVertical: 12,
+                paddingHorizontal: scaleWidth(16),
+                paddingVertical: scaleWidth(12),
                 borderBottomWidth: 1,
                 borderBottomColor: '#e0e0e0',
               }}>
@@ -101,7 +102,7 @@ export const CalendarSelectScreen: React.FC<CalendarSelectScreenProps> = ({
             <Calendar
               onDayPress={handleDayPress}
               maxDate={convertToDateString(today.getTime())}
-              style={{marginTop: 4}}
+              style={{marginTop: scaleWidth(4)}}
             />
           </View>
         </TouchableWithoutFeedback>
