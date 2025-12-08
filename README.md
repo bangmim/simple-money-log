@@ -3,6 +3,10 @@
 **React Native 기반 가계부 앱으로, 월별 지출/수입을 SQLite DB로 관리하고 차트와 캘린더로 시각화한 프로젝트입니다.**  
 포트폴리오용으로 설계/구현 과정을 잘 드러내기 위해 화면 구성, 아키텍처, 사용 기술을 정리했습니다.
 
+## 구현 영상 (Preview)
+| <img src="src/assets/preview.gif" width="300" /> |
+[![YouTube](https://img.shields.io/badge/YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://youtube.com/shorts/0iPpcSba0NE)
+
 ---
 
 ### 주요 기능 (Features)
