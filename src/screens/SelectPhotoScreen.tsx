@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useState} from 'react';
-import {FlatList, Image, Pressable, Text, View} from 'react-native';
+import {FlatList, Image, Pressable, View} from 'react-native';
 import {Header} from '../components/Header/Header';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {faClose} from '@fortawesome/free-solid-svg-icons';

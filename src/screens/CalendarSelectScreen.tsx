@@ -1,5 +1,5 @@
 import React, {useCallback} from 'react';
-import {Pressable, Text, TouchableWithoutFeedback, View} from 'react-native';
+import {Pressable, TouchableWithoutFeedback, View} from 'react-native';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {faX} from '@fortawesome/free-solid-svg-icons';
 import {useRootNavigation} from '../navigations/RootNavigation';
