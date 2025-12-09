@@ -21,6 +21,7 @@ import {MyPageScreen} from '../screens/MyPageScreen';
 import {useAuth} from '../hooks/useAuth';
 import {useInterstitialAd} from '../hooks/useInterstitialAd';
 import {ScreenParams, ROUTES} from './routes';
+import {LoadingSpinner} from '../components/LoadingSpinner';
 
 const Stack = createNativeStackNavigator();
 
@@ -73,8 +74,8 @@ export const RootNavigation = () => {
   }, [navigationState, isAdLoaded, showAd]);
 
   if (loading) {
-    // 로딩 중일 때는 아무것도 표시하지 않거나 로딩 화면 표시
-    return null;
+    // 메인 화면이 올 때까지 로딩 스피너 표시
+    return <LoadingSpinner />;
   }
 
   return (
