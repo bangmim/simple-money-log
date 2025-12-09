@@ -18,7 +18,10 @@ import {SegmentToggle} from '../components/SegmentToggle';
 import {EmptyState} from '../components/EmptyState';
 import colors from '../theme/colors';
 import {spacing} from '../theme/spacing';
-import {Typography} from '../components/Typography';
+import {scaleWidth} from '../utils/responsive';
+import {BannerAdView} from '../components/BannerAdView';
+import {Spacer} from '../components/Spacer';
+import {MonthlySummaryCard} from '../components/MonthlySummaryCard';
 
 type MonthlySummary = {
   key: string;
@@ -156,7 +159,7 @@ export const MonthlyScreen: React.FC = () => {
           <FontAwesomeIcon icon={faClose} />
         </Pressable>
       </Header>
-      <View
+      <ScrollView
         style={{
           flex: 1,
           paddingHorizontal: spacing.horizontal,
@@ -184,48 +187,10 @@ export const MonthlyScreen: React.FC = () => {
             />
 
             {/* 상단 요약 카드 */}
-            <View
-              style={{
-                marginBottom: spacing.vertical,
-                padding: spacing.vertical,
-                borderRadius: 12,
-                backgroundColor: colors.backgroundSecondary,
-              }}>
-              {monthlySummary.length > 0 ? (
-                <>
-                  <Typography
-                    variant="bodyBold"
-                    style={{
-                      marginBottom: 8,
-                    }}>
-                    {period === '1y' ? '올해 전체 요약' : '최근 3개월 요약'}
-                  </Typography>
-                  {monthlySummary.map(summary => (
-                    <View
-                      key={summary.key}
-                      style={{
-                        flexDirection: 'row',
-                        justifyContent: 'space-between',
-                        marginTop: 4,
-                      }}>
-                      <Typography variant="caption" color={colors.textPrimary}>
-                        {summary.label}
-                      </Typography>
-                      <Typography
-                        variant="caption"
-                        color={colors.textSecondary}>
-                        사용 {summary.expense.toLocaleString()}원 / 수입{' '}
-                        {summary.income.toLocaleString()}원
-                      </Typography>
-                    </View>
-                  ))}
-                </>
-              ) : (
-                <Typography variant="caption" color={colors.textSecondary}>
-                  최근 3개월에 대한 데이터가 없습니다.
-                </Typography>
-              )}
-            </View>
+            <MonthlySummaryCard
+              monthlySummary={monthlySummary}
+              period={period}
+            />
 
             {/* 막대 그래프 */}
             {chartData.labels.length > 0 && chartData.data.length > 0 ? (
@@ -233,27 +198,29 @@ export const MonthlyScreen: React.FC = () => {
                 horizontal
                 bounces={false}
                 showsHorizontalScrollIndicator={false}>
-                <View style={{borderRadius: 12, overflow: 'hidden'}}>
-                  <StackedBarChartView
-                    labels={chartData.labels}
-                    data={chartData.data}
-                    width={Math.max(
-                      period === '1y' ? chartData.labels.length * 50 : width,
-                      chartData.labels.length * 50,
-                    )}
-                    height={260}
-                    hideLegend={false}
-                    barPercentage={0.7}
-                    paddingRight={0}
-                  />
-                </View>
+                <StackedBarChartView
+                  labels={chartData.labels}
+                  data={chartData.data}
+                  width={Math.max(
+                    period === '1y'
+                      ? scaleWidth(chartData.labels.length * 50)
+                      : width,
+                    scaleWidth(chartData.labels.length * 50),
+                  )}
+                  height={260}
+                  hideLegend={false}
+                  barPercentage={0.7}
+                  paddingRight={0}
+                />
               </ScrollView>
             ) : (
               <EmptyState message="표시할 데이터가 없습니다." height={260} />
             )}
           </View>
         )}
-      </View>
+      </ScrollView>
+      {period === '1y' && <Spacer space={scaleWidth(16)} />}
+      <BannerAdView />
     </SafeAreaView>
   );
 };
