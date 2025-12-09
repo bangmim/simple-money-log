@@ -43,7 +43,9 @@ export const SelectPhotoScreen: React.FC = () => {
     <SafeAreaView style={{flex: 1, backgroundColor: colors.background}}>
       <Header>
         <Header.Title title="앨범에서 선택" />
-        <Pressable onPress={navigation.goBack}>
+        <Pressable
+          onPress={navigation.goBack}
+          hitSlop={{top: 10, bottom: 10, left: 10, right: 10}}>
           <FontAwesomeIcon icon={faClose} />
         </Pressable>
       </Header>

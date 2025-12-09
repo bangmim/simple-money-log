@@ -155,7 +155,8 @@ export const MonthlyScreen: React.FC = () => {
         <Pressable
           onPress={() => {
             navigation.goBack();
-          }}>
+          }}
+          hitSlop={{top: 10, bottom: 10, left: 10, right: 10}}>
           <FontAwesomeIcon icon={faClose} />
         </Pressable>
       </Header>

@@ -95,7 +95,9 @@ export const CalendarSelectScreen: React.FC<CalendarSelectScreenProps> = ({
                 borderBottomColor: '#e0e0e0',
               }}>
               <Typography variant="bodyBold">날짜 선택</Typography>
-              <Pressable onPress={handleClose}>
+              <Pressable
+                onPress={handleClose}
+                hitSlop={{top: 10, bottom: 10, left: 10, right: 10}}>
                 <FontAwesomeIcon icon={faX} />
               </Pressable>
             </View>

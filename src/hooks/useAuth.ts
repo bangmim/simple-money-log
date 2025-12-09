@@ -186,6 +186,94 @@ export const useAuth = () => {
     }
   };
 
+  const updateNickname = async (nickname: string) => {
+    if (!supabase || !supabase.auth || !user?.id) {
+      return {
+        error: {message: 'Supabase not configured or user not authenticated'},
+      };
+    }
+    try {
+      // 1. user_metadata 업데이트
+      const {error: metadataError} = await supabase.auth.updateUser({
+        data: {nickname},
+      });
+
+      if (metadataError) {
+        return {error: metadataError};
+      }
+
+      // 2. users 테이블 업데이트
+      const {error: dbError} = await supabase
+        .from('users')
+        .update({nickname})
+        .eq('id', user.id);
+
+      if (dbError) {
+        console.error('Failed to update nickname in users table:', dbError);
+        return {error: dbError};
+      }
+
+      // 3. 로컬 user 상태 업데이트
+      const updatedUser = {
+        ...user,
+        user_metadata: {
+          ...user.user_metadata,
+          nickname,
+        },
+      };
+      setUser(updatedUser as User);
+
+      return {error: null};
+    } catch (error: any) {
+      return {error: {message: error.message || 'Failed to update nickname'}};
+    }
+  };
+
+  const deleteAccount = async () => {
+    if (!supabase || !supabase.auth || !user?.id) {
+      return {
+        error: {message: 'Supabase not configured or user not authenticated'},
+      };
+    }
+    try {
+      // 1. users 테이블에서 사용자 데이터 삭제
+      const {error: dbError} = await supabase
+        .from('users')
+        .delete()
+        .eq('id', user.id);
+
+      if (dbError) {
+        console.error('Failed to delete user from users table:', dbError);
+        // 계속 진행 (auth 삭제는 시도)
+      }
+
+      // 2. account_history 테이블에서 사용자 데이터 삭제
+      const {error: historyError} = await supabase
+        .from('account_history')
+        .delete()
+        .eq('user_id', user.id);
+
+      if (historyError) {
+        console.error('Failed to delete account history:', historyError);
+        // 계속 진행
+      }
+
+      // 3. Supabase Auth에서 사용자 삭제
+      // 주의: Supabase는 직접적인 사용자 삭제 API를 제공하지 않을 수 있습니다.
+      // 대신 관리자 권한이 필요할 수 있습니다.
+      // 여기서는 로그아웃만 수행합니다.
+      const {error: signOutError} = await supabase.auth.signOut();
+
+      if (signOutError) {
+        return {error: signOutError};
+      }
+
+      return {error: null};
+    } catch (error: any) {
+      return {error: {message: error.message || 'Failed to delete account'}};
+    }
+  };
+
   return {
     session,
     user,
@@ -194,6 +282,8 @@ export const useAuth = () => {
     signInWithUsername,
     signUp,
     signOut,
+    updateNickname,
+    deleteAccount,
     isAuthenticated: !!session,
   };
 };

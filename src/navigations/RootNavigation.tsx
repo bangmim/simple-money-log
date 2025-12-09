@@ -17,6 +17,7 @@ import {CalendarSelectScreen} from '../screens/CalendarSelectScreen';
 import {TakePhotoScreen} from '../screens/TakePhotoScreen';
 import {SelectPhotoScreen} from '../screens/SelectPhotoScreen';
 import {LoginScreen} from '../screens/LoginScreen';
+import {MyPageScreen} from '../screens/MyPageScreen';
 import {useAuth} from '../hooks/useAuth';
 import {useInterstitialAd} from '../hooks/useInterstitialAd';
 import {ScreenParams, ROUTES} from './routes';
@@ -91,6 +92,7 @@ export const RootNavigation = () => {
             component={MonthlyScreen}
           />
           <Stack.Screen name={ROUTES.DETAIL} component={DetailScreen} />
+          <Stack.Screen name={ROUTES.MY_PAGE} component={MyPageScreen} />
           <Stack.Screen
             name={ROUTES.CALENDAR_SELECT}
             component={CalendarSelectScreen}

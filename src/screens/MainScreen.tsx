@@ -1,4 +1,4 @@
-import React, {useCallback, useMemo, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {
   Alert,
   FlatList,
@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import {Header} from '../components/Header/Header';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
-import {faPlus, faTrash, faSignOutAlt} from '@fortawesome/free-solid-svg-icons';
+import {faPlus, faTrash, faUser} from '@fortawesome/free-solid-svg-icons';
 import {AccountBookHistory} from '../data/AccountBookHistory';
 import {useRootNavigation} from '../navigations/RootNavigation';
 import {AccountBookHistoryListItemView} from '../components/AccountHistoryListItemView';
@@ -27,13 +27,15 @@ import {spacing} from '../theme/spacing';
 import {Typography} from '../components/Typography';
 import {scaleWidth} from '../utils/responsive';
 import {BannerAdView} from '../components/BannerAdView';
+import {supabase} from '../config/supabase';
 
 export const MainScreen: React.FC = () => {
   const safeAreaInset = useSafeAreaInsets();
   const {width} = useWindowDimensions();
   const navigation = useRootNavigation();
-  const {signOut} = useAuth();
+  const {user} = useAuth();
   const [list, setList] = useState<AccountBookHistory[]>([]);
+  const [nickname, setNickname] = useState<string>('');
   const {getList, deleteItem} = useAccountBookHistoryItem();
   const swipeableRefs = useRef<Map<string, Swipeable | null>>(
     new Map<string, Swipeable | null>(),
@@ -48,6 +50,39 @@ export const MainScreen: React.FC = () => {
       fetchList();
     }, [fetchList]),
   );
+
+  // 닉네임 가져오기
+  useEffect(() => {
+    const fetchNickname = async () => {
+      if (!user?.id) {
+        return;
+      }
+
+      // 1. user_metadata에서 먼저 확인
+      const metadataNickname = user.user_metadata?.nickname;
+      if (metadataNickname) {
+        setNickname(metadataNickname);
+        return;
+      }
+
+      // 2. users 테이블에서 가져오기
+      try {
+        const {data, error} = await supabase
+          .from('users')
+          .select('nickname')
+          .eq('id', user.id)
+          .single();
+
+        if (!error && data?.nickname) {
+          setNickname(data.nickname);
+        }
+      } catch (error) {
+        console.warn('Failed to fetch nickname:', error);
+      }
+    };
+
+    fetchNickname();
+  }, [user]);
 
   const dailyChart = useMemo(() => {
     // 이번 달 1일부터 말일까지 일별 통계 (단위: 천원)
@@ -148,24 +183,19 @@ export const MainScreen: React.FC = () => {
     },
     [deleteItem, fetchList],
   );
-  const handleLogout = useCallback(async () => {
-    confirmDialog({
-      title: '로그아웃',
-      message: '정말 로그아웃 하시겠습니까?',
-      confirmText: '로그아웃',
-      onConfirm: async () => {
-        await signOut();
-      },
-    });
-  }, [signOut]);
+  const handleMyPage = useCallback(() => {
+    navigation.push('MyPage');
+  }, [navigation]);
 
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: colors.background}}>
       <Header>
-        <Header.Title title="가계부" />
-        <Pressable onPress={handleLogout}>
+        <Header.Title title={nickname ? `${nickname}의 가계부` : '가계부'} />
+        <Pressable
+          onPress={handleMyPage}
+          hitSlop={{top: 10, bottom: 10, left: 10, right: 10}}>
           <FontAwesomeIcon
-            icon={faSignOutAlt}
+            icon={faUser}
             size={20}
             color={colors.textSecondary}
           />

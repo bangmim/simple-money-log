@@ -12,6 +12,7 @@ export type ScreenParams = {
   };
   Detail: {item: AccountBookHistory};
   MonthlyAverage: undefined;
+  MyPage: undefined;
   CalendarSelect: {selectedDate?: number};
   TakePhoto: {onTakePhoto: (url: string) => void};
   SelectPhoto: {onSelectPhoto: (url: string) => void};
@@ -25,6 +26,7 @@ export const ROUTES = {
   UPDATE: 'Update',
   DETAIL: 'Detail',
   MONTHLY_AVERAGE: 'MonthlyAverage',
+  MY_PAGE: 'MyPage',
   CALENDAR_SELECT: 'CalendarSelect',
   TAKE_PHOTO: 'TakePhoto',
   SELECT_PHOTO: 'SelectPhoto',

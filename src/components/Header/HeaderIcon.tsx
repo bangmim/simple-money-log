@@ -7,7 +7,9 @@ export const HeaderIcon: React.FC<{
   iconName: IconProp;
 }> = props => {
   return (
-    <Pressable onPress={props.onPress}>
+    <Pressable
+      onPress={props.onPress}
+      hitSlop={{top: 10, bottom: 10, left: 10, right: 10}}>
       <FontAwesomeIcon icon={props.iconName} size={28} color="black" />
     </Pressable>
   );
