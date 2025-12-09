@@ -236,32 +236,39 @@ export const useAuth = () => {
       };
     }
     try {
-      // 1. users 테이블에서 사용자 데이터 삭제
-      const {error: dbError} = await supabase
-        .from('users')
-        .delete()
-        .eq('id', user.id);
-
-      if (dbError) {
-        console.error('Failed to delete user from users table:', dbError);
-        // 계속 진행 (auth 삭제는 시도)
-      }
-
-      // 2. account_history 테이블에서 사용자 데이터 삭제
+      // 1. account_history 테이블에서 사용자 데이터 삭제
       const {error: historyError} = await supabase
         .from('account_history')
         .delete()
         .eq('user_id', user.id);
 
       if (historyError) {
-        console.error('Failed to delete account history:', historyError);
-        // 계속 진행
+        throw new Error(historyError.message);
       }
 
-      // 3. Supabase Auth에서 사용자 삭제
-      // 주의: Supabase는 직접적인 사용자 삭제 API를 제공하지 않을 수 있습니다.
-      // 대신 관리자 권한이 필요할 수 있습니다.
-      // 여기서는 로그아웃만 수행합니다.
+      // 2. users 테이블에서 사용자 데이터 삭제
+      const {error: dbError} = await supabase
+        .from('users')
+        .delete()
+        .eq('id', user.id);
+
+      if (dbError) {
+        throw new Error(dbError.message);
+      }
+
+      // 3. Database Function을 통해 auth.users 삭제
+      // Supabase 에디터에서 delete_user_account 함수를 생성해야 합니다
+      const {error: rpcError} = await supabase.rpc('delete_user_account');
+
+      if (rpcError) {
+        console.warn(
+          'Database Function not available. Auth account may not be deleted:',
+          rpcError,
+        );
+        // Database Function이 없어도 계속 진행 (데이터는 이미 삭제됨)
+      }
+
+      // 4. 로그아웃 처리
       const {error: signOutError} = await supabase.auth.signOut();
 
       if (signOutError) {
