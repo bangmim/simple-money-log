@@ -74,22 +74,47 @@ export const useAuth = () => {
     }
   };
 
-  // 아이디로 이메일 찾기
-  const findEmailByUsername = async (username: string) => {
+  // 이메일 형식인지 확인
+  const isEmail = (input: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(input);
+  };
+
+  // 아이디, 닉네임, 이메일 중 하나로 이메일 찾기
+  const findEmailByIdentifier = async (identifier: string) => {
     if (!supabase) {
       return {data: null, error: {message: 'Supabase not configured'}};
     }
     try {
-      // .single() 대신 .maybeSingle() 사용 (결과가 없어도 에러 발생 안함)
-      // 보안: username_lookup 뷰 사용 (email만 노출)
+      // 이메일 형식이면 바로 반환
+      if (isEmail(identifier)) {
+        return {data: {email: identifier}, error: null};
+      }
+
+      // username_lookup 뷰가 있으면 먼저 시도
+      try {
+        const {data: usernameData, error: usernameError} = await supabase
+          .from('username_lookup')
+          .select('email')
+          .eq('username', identifier)
+          .maybeSingle();
+
+        if (!usernameError && usernameData) {
+          return {data: usernameData, error: null};
+        }
+      } catch (e) {
+        // username_lookup 뷰가 없으면 users 테이블로 진행
+      }
+
+      // users 테이블에서 아이디나 닉네임으로 검색
       const {data, error} = await supabase
-        .from('username_lookup')
+        .from('users')
         .select('email')
-        .eq('username', username)
+        .or(`username.eq.${identifier},nickname.eq.${identifier}`)
         .maybeSingle();
 
       if (error) {
-        console.error('findEmailByUsername error:', error);
+        console.error('findEmailByIdentifier error:', error);
         return {data: null, error};
       }
 
@@ -97,26 +122,30 @@ export const useAuth = () => {
       if (!data) {
         return {
           data: null,
-          error: {message: '아이디를 찾을 수 없습니다.'},
+          error: {
+            message: '아이디, 이메일 또는 닉네임을 찾을 수 없습니다.',
+          },
         };
       }
 
       return {data, error: null};
     } catch (error: any) {
-      console.error('findEmailByUsername exception:', error);
+      console.error('findEmailByIdentifier exception:', error);
       return {data: null, error: {message: error.message || 'User not found'}};
     }
   };
 
-  // 아이디로 로그인
-  const signInWithUsername = async (username: string, password: string) => {
-    const {data: userData, error: findError} = await findEmailByUsername(
-      username,
+  // 아이디, 닉네임, 이메일 중 하나로 로그인
+  const signInWithUsername = async (identifier: string, password: string) => {
+    const {data: userData, error: findError} = await findEmailByIdentifier(
+      identifier,
     );
     if (findError || !userData) {
       return {
         data: null,
-        error: {message: '아이디를 찾을 수 없습니다.'},
+        error: findError || {
+          message: '아이디, 이메일 또는 닉네임을 찾을 수 없습니다.',
+        },
       };
     }
     return signIn(userData.email, password);

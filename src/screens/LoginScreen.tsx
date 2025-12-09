@@ -21,7 +21,8 @@ import {scaleWidth} from '../utils/responsive';
 export const LoginScreen: React.FC = () => {
   const {signInWithUsername, signUp} = useAuth();
   const [isSignUp, setIsSignUp] = useState(false);
-  const [username, setUsername] = useState(''); // 로그인/회원가입 시 아이디
+  const [identifier, setIdentifier] = useState(''); // 로그인 시 아이디, 이메일 또는 닉네임
+  const [username, setUsername] = useState(''); // 회원가입 시 아이디
   const [email, setEmail] = useState(''); // 회원가입 시 이메일
   const [password, setPassword] = useState('');
   const [nickname, setNickname] = useState(''); // 회원가입 시 닉네임
@@ -47,8 +48,11 @@ export const LoginScreen: React.FC = () => {
       }
     } else {
       // 로그인 검증
-      if (!username || !password) {
-        Alert.alert('오류', '아이디와 비밀번호를 입력해주세요.');
+      if (!identifier || !password) {
+        Alert.alert(
+          '오류',
+          '아이디, 이메일 또는 닉네임과 비밀번호를 입력해주세요.',
+        );
         return;
       }
     }
@@ -68,7 +72,7 @@ export const LoginScreen: React.FC = () => {
           setNickname('');
         }
       } else {
-        const {error} = await signInWithUsername(username, password);
+        const {error} = await signInWithUsername(identifier, password);
         if (error) {
           Alert.alert('로그인 실패', error.message);
         }
@@ -81,6 +85,7 @@ export const LoginScreen: React.FC = () => {
     }
   }, [
     email,
+    identifier,
     username,
     password,
     nickname,
@@ -121,15 +126,24 @@ export const LoginScreen: React.FC = () => {
               }}>
               {isSignUp
                 ? '이메일, 아이디, 비밀번호를 입력해주세요'
-                : '아이디와 비밀번호를 입력해주세요'}
+                : '아이디, 이메일 또는 닉네임과 비밀번호를 입력해주세요'}
             </Typography>
 
-            <SingleLineInput
-              value={username}
-              onChangeText={setUsername}
-              placeholder="아이디"
-              fontSize={scaleWidth(16)}
-            />
+            {isSignUp ? (
+              <SingleLineInput
+                value={username}
+                onChangeText={setUsername}
+                placeholder="아이디"
+                fontSize={scaleWidth(16)}
+              />
+            ) : (
+              <SingleLineInput
+                value={identifier}
+                onChangeText={setIdentifier}
+                placeholder="아이디, 이메일 또는 닉네임"
+                fontSize={scaleWidth(16)}
+              />
+            )}
             <Spacer space={scaleWidth(16)} />
             {isSignUp && (
               <>

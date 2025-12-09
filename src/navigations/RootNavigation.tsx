@@ -51,8 +51,8 @@ export const RootNavigation = () => {
       lastRouteNameRef.current !== currentRouteName &&
       isAdLoaded
     ) {
-      // 일정 확률로 광고 표시 (30% 확률)
-      const shouldShowAd = Math.random() < 0.3;
+      // 일정 확률로 광고 표시 (20% 확률)
+      const shouldShowAd = Math.random() < 0.2;
 
       if (shouldShowAd) {
         // 약간의 지연 후 광고 표시 (화면 전환 애니메이션 완료 후)
