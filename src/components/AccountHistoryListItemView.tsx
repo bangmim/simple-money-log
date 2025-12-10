@@ -34,7 +34,10 @@ export const AccountBookHistoryListItemView: React.FC<{
           <Typography variant="body" color={colors.textPrimary}>
             {props.item.price.toLocaleString()}원{' '}
           </Typography>
-          <Typography variant="body" color={colors.textSecondary}>
+          <Typography
+            numberOfLines={2}
+            variant="body"
+            color={colors.textSecondary}>
             {props.item.comment}
           </Typography>
           <Spacer space={scaleWidth(4)} />
@@ -47,9 +50,12 @@ export const AccountBookHistoryListItemView: React.FC<{
         {props.item.photoUrl !== null && (
           <Image
             source={{uri: props.item.photoUrl}}
-            width={scaleWidth(100)}
-            height={scaleWidth(100)}
-            style={{borderRadius: scaleWidth(10)}}
+            width={scaleWidth(60)}
+            height={scaleWidth(60)}
+            style={{
+              borderRadius: scaleWidth(8),
+              marginLeft: scaleWidth(8),
+            }}
           />
         )}
       </View>

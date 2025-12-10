@@ -205,6 +205,7 @@ export const MainScreen: React.FC = () => {
       <FlatList
         data={dailyGroups}
         keyExtractor={item => item.key}
+        contentContainerStyle={{paddingBottom: scaleWidth(80)}}
         ListHeaderComponent={
           <View>
             <View
@@ -269,21 +270,29 @@ export const MainScreen: React.FC = () => {
           return (
             <View
               style={{
-                paddingHorizontal: spacing.horizontal,
                 paddingVertical: 12,
               }}>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
-                  marginBottom: 8,
-                }}>
+              <Pressable
+                onPress={() => {
+                  navigation.push(ROUTES.ADD, {selectedDate: item.date});
+                }}
+                style={({pressed}) => [
+                  {
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    marginBottom: 8,
+                    paddingVertical: scaleWidth(4),
+                    paddingHorizontal: spacing.horizontal,
+                    opacity: pressed ? 0.7 : 1,
+                  },
+                ]}>
                 <Typography variant="bodyBold">{dateLabel}</Typography>
                 <Typography variant="caption" color={colors.textSecondary}>
                   지출 {item.totalExpense.toLocaleString()}원 / 수입{' '}
                   {item.totalIncome.toLocaleString()}원
                 </Typography>
-              </View>
+              </Pressable>
 
               {item.items.map(history => {
                 const historyKey =
