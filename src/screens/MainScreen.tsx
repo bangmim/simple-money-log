@@ -201,62 +201,65 @@ export const MainScreen: React.FC = () => {
           />
         </Pressable>
       </Header>
-      <View>
-        <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            paddingHorizontal: spacing.horizontal,
-            paddingVertical: 8,
-          }}>
-          <Typography variant="title" fontSize={18}>
-            일별 통계 (
-            {new Date().toLocaleDateString('ko-KR', {
-              year: 'numeric',
-              month: 'long',
-            })}
-            , 단위: 천원)
-          </Typography>
-          <Pressable
-            onPress={() => {
-              if (list.length === 0) {
-                Alert.alert('알림', '표시할 데이터가 없습니다.');
-                return;
-              }
-              navigation.push('MonthlyAverage');
-            }}>
-            <Typography variant="caption" color={colors.primary}>
-              자세히 보기
-            </Typography>
-          </Pressable>
-        </View>
-        {dailyChart.hasData ? (
-          <ScrollView
-            horizontal
-            style={{backgroundColor: '#fff'}}
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{
-              paddingVertical: 8,
-              paddingHorizontal: scaleWidth(24),
-            }}>
-            <StackedBarChartView
-              labels={dailyChart.labels}
-              data={dailyChart.data}
-              width={Math.max(width, dailyChart.labels.length * 40)}
-              height={220}
-              hideLegend
-            />
-          </ScrollView>
-        ) : (
-          <EmptyState message="이번 달 일별 데이터가 없습니다." height={220} />
-        )}
-
-        <BannerAdView />
-      </View>
       <FlatList
         data={dailyGroups}
         keyExtractor={item => item.key}
+        ListHeaderComponent={
+          <View>
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                paddingHorizontal: spacing.horizontal,
+                paddingVertical: 8,
+              }}>
+              <Typography variant="title" fontSize={18}>
+                일별 통계 (
+                {new Date().toLocaleDateString('ko-KR', {
+                  year: 'numeric',
+                  month: 'long',
+                })}
+                , 단위: 천원)
+              </Typography>
+              <Pressable
+                onPress={() => {
+                  if (list.length === 0) {
+                    Alert.alert('알림', '표시할 데이터가 없습니다.');
+                    return;
+                  }
+                  navigation.push('MonthlyAverage');
+                }}>
+                <Typography variant="caption" color={colors.primary}>
+                  자세히 보기
+                </Typography>
+              </Pressable>
+            </View>
+            {dailyChart.hasData ? (
+              <ScrollView
+                horizontal
+                style={{backgroundColor: '#fff'}}
+                showsHorizontalScrollIndicator={false}
+                nestedScrollEnabled={true}
+                contentContainerStyle={{
+                  paddingVertical: 8,
+                  paddingHorizontal: scaleWidth(24),
+                }}>
+                <StackedBarChartView
+                  labels={dailyChart.labels}
+                  data={dailyChart.data}
+                  width={Math.max(width, dailyChart.labels.length * 40)}
+                  height={220}
+                  hideLegend
+                />
+              </ScrollView>
+            ) : (
+              <EmptyState message="이번 달 일별 데이터가 없습니다." height={220} />
+            )}
+
+            <BannerAdView />
+          </View>
+        }
         renderItem={({item}) => {
           const dateLabel = convertToDateString(item.date).split(' ')[0];
           return (
@@ -330,6 +333,7 @@ export const MainScreen: React.FC = () => {
             </View>
           );
         }}
+        showsVerticalScrollIndicator={true}
       />
 
       <Pressable

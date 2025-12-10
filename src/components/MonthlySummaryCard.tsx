@@ -104,7 +104,8 @@ export const MonthlySummaryCard: React.FC<MonthlySummaryCardProps> = ({
         // 펼쳐보기 클릭 시: 스크롤 가능
         <ScrollView
           style={{maxHeight: 180}}
-          showsVerticalScrollIndicator={false}>
+          showsVerticalScrollIndicator={false}
+          nestedScrollEnabled={true}>
           {monthlySummary.map(summary => (
             <MonthlySummaryItem
               key={summary.key}

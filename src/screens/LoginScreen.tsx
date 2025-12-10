@@ -104,8 +104,12 @@ export const LoginScreen: React.FC = () => {
         </Header>
         <ScrollView
           contentContainerStyle={{
+            flexGrow: 1,
             marginHorizontal: scaleWidth(24),
-          }}>
+          }}
+          nestedScrollEnabled={true}
+          showsVerticalScrollIndicator={true}
+          keyboardShouldPersistTaps="handled">
           <Spacer space={scaleWidth(48)} />
 
           <View>

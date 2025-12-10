@@ -14,6 +14,7 @@ import {Button} from '../components/Button';
 import {Input} from '../components/Input';
 import {supabase} from '../config/supabase';
 import {BannerAdView} from '../components/BannerAdView';
+import {useFocusEffect} from '@react-navigation/native';
 
 export const MyPageScreen: React.FC = () => {
   const navigation = useRootNavigation();
@@ -21,6 +22,27 @@ export const MyPageScreen: React.FC = () => {
   const [nickname, setNickname] = useState('');
   const [isEditingNickname, setIsEditingNickname] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  // 세션 새로고침 (이메일 변경 등 반영)
+  useFocusEffect(
+    useCallback(() => {
+      const refreshSession = async () => {
+        if (!supabase || !supabase.auth) {
+          return;
+        }
+        try {
+          // 세션을 새로고침하여 최신 사용자 정보 가져오기
+          const {error} = await supabase.auth.refreshSession();
+          if (error) {
+            console.warn('Failed to refresh session:', error);
+          }
+        } catch (error) {
+          console.warn('Error refreshing session:', error);
+        }
+      };
+      refreshSession();
+    }, []),
+  );
 
   // 닉네임 가져오기
   useEffect(() => {
@@ -130,7 +152,10 @@ export const MyPageScreen: React.FC = () => {
           flex: 1,
           paddingHorizontal: spacing.horizontal,
           paddingVertical: spacing.vertical,
-        }}>
+        }}
+        contentContainerStyle={{flexGrow: 1}}
+        nestedScrollEnabled={true}
+        showsVerticalScrollIndicator={true}>
         {/* 사용자 정보 섹션 */}
         <View
           style={{

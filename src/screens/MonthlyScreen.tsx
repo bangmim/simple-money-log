@@ -165,7 +165,10 @@ export const MonthlyScreen: React.FC = () => {
           flex: 1,
           paddingHorizontal: spacing.horizontal,
           paddingVertical: spacing.vertical,
-        }}>
+        }}
+        contentContainerStyle={{flexGrow: 1}}
+        nestedScrollEnabled={true}
+        showsVerticalScrollIndicator={true}>
         {loading ? (
           <View
             style={{
@@ -198,7 +201,8 @@ export const MonthlyScreen: React.FC = () => {
               <ScrollView
                 horizontal
                 bounces={false}
-                showsHorizontalScrollIndicator={false}>
+                showsHorizontalScrollIndicator={false}
+                nestedScrollEnabled={true}>
                 <StackedBarChartView
                   labels={chartData.labels}
                   data={chartData.data}

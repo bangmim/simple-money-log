@@ -67,9 +67,12 @@ export const DetailScreen: React.FC = () => {
       <ScrollView
         style={{flex: 1, backgroundColor: colors.background}}
         contentContainerStyle={{
+          flexGrow: 1,
           paddingTop: scaleWidth(12),
           paddingHorizontal: spacing.horizontal,
-        }}>
+        }}
+        nestedScrollEnabled={true}
+        showsVerticalScrollIndicator={true}>
         <TypeSelector
           selectedType={item.type}
           onSelectType={() => {}}
