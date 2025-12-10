@@ -28,8 +28,17 @@ export const Button: React.FC<ButtonProps> = ({
       ? colors.textSecondary
       : colors.primary;
 
+  // disabled일 때도 클릭 가능하도록 하기 위해 Pressable의 disabled는 loading일 때만 true
+  // disabled는 색상만 변경하는 용도로 사용
   return (
-    <Pressable onPress={onPress} disabled={disabled || loading}>
+    <Pressable
+      onPress={onPress}
+      disabled={loading}
+      style={({pressed}) => [
+        {
+          opacity: pressed && !loading ? 0.7 : 1,
+        },
+      ]}>
       <View
         style={[
           styles.button,

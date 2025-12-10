@@ -1,4 +1,4 @@
-import React, {useState, useCallback} from 'react';
+import React, {useState, useCallback, useEffect, useRef} from 'react';
 import {
   View,
   Pressable,
@@ -6,6 +6,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  ActivityIndicator,
 } from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {Header} from '../components/Header/Header';
@@ -19,7 +20,12 @@ import {Typography} from '../components/Typography';
 import {scaleWidth} from '../utils/responsive';
 
 export const LoginScreen: React.FC = () => {
-  const {signInWithUsername, signUp} = useAuth();
+  const {
+    signInWithUsername,
+    signUp,
+    checkEmailDuplicate,
+    checkUsernameDuplicate,
+  } = useAuth();
   const [isSignUp, setIsSignUp] = useState(false);
   const [identifier, setIdentifier] = useState(''); // 로그인 시 아이디, 이메일 또는 닉네임
   const [username, setUsername] = useState(''); // 회원가입 시 아이디
@@ -28,6 +34,132 @@ export const LoginScreen: React.FC = () => {
   const [nickname, setNickname] = useState(''); // 회원가입 시 닉네임
   const [loading, setLoading] = useState(false);
   const [passwordFocused, setPasswordFocused] = useState(false);
+  const [emailError, setEmailError] = useState<string | null>(null);
+  const [usernameError, setUsernameError] = useState<string | null>(null);
+  const [checkingEmail, setCheckingEmail] = useState(false);
+  const [checkingUsername, setCheckingUsername] = useState(false);
+  const emailCheckTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const usernameCheckTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const usernameInputRef = useRef<any>(null);
+  const emailInputRef = useRef<any>(null);
+  const scrollViewRef = useRef<ScrollView>(null);
+  const usernameViewRef = useRef<View>(null);
+  const emailViewRef = useRef<View>(null);
+
+  // 함수들을 ref로 저장하여 dependency 문제 해결
+  const checkEmailDuplicateRef = useRef(checkEmailDuplicate);
+  const checkUsernameDuplicateRef = useRef(checkUsernameDuplicate);
+
+  useEffect(() => {
+    checkEmailDuplicateRef.current = checkEmailDuplicate;
+  }, [checkEmailDuplicate]);
+
+  useEffect(() => {
+    checkUsernameDuplicateRef.current = checkUsernameDuplicate;
+  }, [checkUsernameDuplicate]);
+
+  // 이메일 실시간 중복 체크 (debounce)
+  useEffect(() => {
+    if (!isSignUp || !email || email.trim() === '') {
+      setEmailError(null);
+      setCheckingEmail(false);
+      return;
+    }
+
+    // 이메일 형식 검증
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.trim())) {
+      setEmailError(null); // 형식이 맞지 않으면 중복 체크 안 함
+      setCheckingEmail(false);
+      return;
+    }
+
+    // 기존 타이머 취소
+    if (emailCheckTimeoutRef.current) {
+      clearTimeout(emailCheckTimeoutRef.current);
+    }
+
+    setCheckingEmail(true);
+    setEmailError(null);
+
+    // 300ms 후에 체크 (더 빠른 피드백)
+    const timeoutId = setTimeout(async () => {
+      try {
+        const result = await checkEmailDuplicateRef.current(email);
+        setCheckingEmail(false);
+        if (result.isDuplicate && result.error) {
+          setEmailError(result.error.message);
+        } else {
+          setEmailError(null);
+        }
+      } catch (err) {
+        console.error('Email check error:', err);
+        setCheckingEmail(false);
+        setEmailError(null);
+      }
+    }, 300);
+
+    emailCheckTimeoutRef.current = timeoutId;
+
+    return () => {
+      if (emailCheckTimeoutRef.current) {
+        clearTimeout(emailCheckTimeoutRef.current);
+      }
+      emailCheckTimeoutRef.current = null;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [email, isSignUp]);
+
+  // 아이디 실시간 중복 체크 (debounce)
+  useEffect(() => {
+    if (!isSignUp || !username || username.trim() === '') {
+      setUsernameError(null);
+      setCheckingUsername(false);
+      return;
+    }
+
+    // 아이디 최소 길이 체크 (예: 3자 이상)
+    if (username.trim().length < 3) {
+      setUsernameError(null); // 너무 짧으면 중복 체크 안 함
+      setCheckingUsername(false);
+      return;
+    }
+
+    // 기존 타이머 취소
+    if (usernameCheckTimeoutRef.current) {
+      clearTimeout(usernameCheckTimeoutRef.current);
+    }
+
+    setCheckingUsername(true);
+    setUsernameError(null);
+
+    // 300ms 후에 체크 (더 빠른 피드백)
+    const timeoutId = setTimeout(async () => {
+      try {
+        const result = await checkUsernameDuplicateRef.current(username);
+        setCheckingUsername(false);
+        if (result.isDuplicate && result.error) {
+          setUsernameError(result.error.message);
+        } else {
+          setUsernameError(null);
+        }
+      } catch (err) {
+        console.error('Username check error:', err);
+        setCheckingUsername(false);
+        setUsernameError(null);
+      }
+    }, 300);
+
+    usernameCheckTimeoutRef.current = timeoutId;
+
+    return () => {
+      if (usernameCheckTimeoutRef.current) {
+        clearTimeout(usernameCheckTimeoutRef.current);
+      }
+      usernameCheckTimeoutRef.current = null;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [username, isSignUp]);
 
   const handleSubmit = useCallback(async () => {
     if (isSignUp) {
@@ -44,6 +176,50 @@ export const LoginScreen: React.FC = () => {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(email)) {
         Alert.alert('오류', '올바른 이메일 형식을 입력해주세요.');
+        return;
+      }
+      // 중복 체크 에러 확인
+      if (usernameError) {
+        // 오류가 있으면 포커스 이동
+        usernameViewRef.current?.measureLayout(
+          scrollViewRef.current as any,
+          (x, y) => {
+            scrollViewRef.current?.scrollTo({
+              y: Math.max(0, y - 20),
+              animated: true,
+            });
+            setTimeout(() => {
+              usernameInputRef.current?.focus();
+            }, 100);
+          },
+          () => {
+            usernameInputRef.current?.focus();
+          },
+        );
+        return;
+      }
+      if (emailError) {
+        // 오류가 있으면 포커스 이동
+        emailViewRef.current?.measureLayout(
+          scrollViewRef.current as any,
+          (x, y) => {
+            scrollViewRef.current?.scrollTo({
+              y: Math.max(0, y - 20),
+              animated: true,
+            });
+            setTimeout(() => {
+              emailInputRef.current?.focus();
+            }, 100);
+          },
+          () => {
+            emailInputRef.current?.focus();
+          },
+        );
+        return;
+      }
+      // 체크 중이면 대기
+      if (checkingEmail || checkingUsername) {
+        Alert.alert('알림', '중복 확인 중입니다. 잠시 후 다시 시도해주세요.');
         return;
       }
     } else {
@@ -109,6 +285,10 @@ export const LoginScreen: React.FC = () => {
     isSignUp,
     signInWithUsername,
     signUp,
+    checkingEmail,
+    checkingUsername,
+    emailError,
+    usernameError,
   ]);
 
   return (
@@ -120,6 +300,7 @@ export const LoginScreen: React.FC = () => {
           <Header.Title title={isSignUp ? '회원가입' : '로그인'} />
         </Header>
         <ScrollView
+          ref={scrollViewRef}
           contentContainerStyle={{
             flexGrow: 1,
             marginHorizontal: scaleWidth(24),
@@ -151,30 +332,77 @@ export const LoginScreen: React.FC = () => {
             </Typography>
 
             {isSignUp ? (
-              <SingleLineInput
-                value={username}
-                onChangeText={setUsername}
-                placeholder="아이디"
-                fontSize={scaleWidth(16)}
-              />
-            ) : (
-              <SingleLineInput
-                value={identifier}
-                onChangeText={setIdentifier}
-                placeholder="아이디, 이메일 또는 닉네임"
-                fontSize={scaleWidth(16)}
-              />
-            )}
-            <Spacer space={scaleWidth(16)} />
-            {isSignUp && (
               <>
-                <SingleLineInput
-                  value={email}
-                  onChangeText={setEmail}
-                  placeholder="이메일"
-                  keyboardType="email-address"
-                  fontSize={scaleWidth(16)}
-                />
+                <View ref={usernameViewRef}>
+                  <SingleLineInput
+                    ref={usernameInputRef}
+                    value={username}
+                    onChangeText={setUsername}
+                    placeholder="아이디"
+                    fontSize={scaleWidth(16)}
+                    error={!!usernameError}
+                  />
+                  {checkingUsername && (
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        marginTop: scaleWidth(4),
+                      }}>
+                      <ActivityIndicator size="small" color={colors.primary} />
+                      <Typography
+                        variant="caption"
+                        color={colors.textSecondary}
+                        style={{marginLeft: scaleWidth(8)}}>
+                        확인 중...
+                      </Typography>
+                    </View>
+                  )}
+                  {usernameError && (
+                    <Typography
+                      variant="caption"
+                      color={colors.danger}
+                      style={{marginTop: scaleWidth(4)}}>
+                      {usernameError}
+                    </Typography>
+                  )}
+                </View>
+                <Spacer space={scaleWidth(16)} />
+                <View ref={emailViewRef}>
+                  <SingleLineInput
+                    ref={emailInputRef}
+                    value={email}
+                    onChangeText={setEmail}
+                    placeholder="이메일"
+                    keyboardType="email-address"
+                    fontSize={scaleWidth(16)}
+                    error={!!emailError}
+                  />
+                  {checkingEmail && (
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        marginTop: scaleWidth(4),
+                      }}>
+                      <ActivityIndicator size="small" color={colors.primary} />
+                      <Typography
+                        variant="caption"
+                        color={colors.textSecondary}
+                        style={{marginLeft: scaleWidth(8)}}>
+                        확인 중...
+                      </Typography>
+                    </View>
+                  )}
+                  {emailError && (
+                    <Typography
+                      variant="caption"
+                      color={colors.danger}
+                      style={{marginTop: scaleWidth(4)}}>
+                      {emailError}
+                    </Typography>
+                  )}
+                </View>
                 <Spacer space={scaleWidth(16)} />
                 <SingleLineInput
                   value={nickname}
@@ -184,7 +412,15 @@ export const LoginScreen: React.FC = () => {
                 />
                 <Spacer space={scaleWidth(16)} />
               </>
+            ) : (
+              <SingleLineInput
+                value={identifier}
+                onChangeText={setIdentifier}
+                placeholder="아이디, 이메일 또는 닉네임"
+                fontSize={scaleWidth(16)}
+              />
             )}
+            <Spacer space={scaleWidth(16)} />
 
             <PasswordInput
               value={password}
@@ -193,26 +429,108 @@ export const LoginScreen: React.FC = () => {
               onFocus={() => setPasswordFocused(true)}
               onBlur={() => setPasswordFocused(false)}
               focused={passwordFocused}
+              error={isSignUp && password.length > 0 && password.length < 6}
             />
 
             <Spacer space={scaleWidth(32)} />
 
             <Button
               title={isSignUp ? '회원가입' : '로그인'}
-              onPress={handleSubmit}
-              disabled={loading}
+              disabled={
+                isSignUp &&
+                !loading &&
+                (!!emailError ||
+                  !!usernameError ||
+                  checkingEmail ||
+                  checkingUsername)
+              }
+              onPress={() => {
+                // 비활성화된 상태에서도 클릭 시 오류 필드로 포커스 이동
+                if (
+                  isSignUp &&
+                  !loading &&
+                  (!!emailError ||
+                    !!usernameError ||
+                    checkingEmail ||
+                    checkingUsername)
+                ) {
+                  if (usernameError) {
+                    usernameViewRef.current?.measureLayout(
+                      scrollViewRef.current as any,
+                      (x, y) => {
+                        scrollViewRef.current?.scrollTo({
+                          y: Math.max(0, y - 20),
+                          animated: true,
+                        });
+                        setTimeout(() => {
+                          usernameInputRef.current?.focus();
+                        }, 100);
+                      },
+                      () => {
+                        usernameInputRef.current?.focus();
+                      },
+                    );
+                  } else if (emailError) {
+                    emailViewRef.current?.measureLayout(
+                      scrollViewRef.current as any,
+                      (x, y) => {
+                        scrollViewRef.current?.scrollTo({
+                          y: Math.max(0, y - 20),
+                          animated: true,
+                        });
+                        setTimeout(() => {
+                          emailInputRef.current?.focus();
+                        }, 100);
+                      },
+                      () => {
+                        emailInputRef.current?.focus();
+                      },
+                    );
+                  }
+                  return;
+                }
+                handleSubmit();
+              }}
               loading={loading}
             />
 
             <Spacer space={scaleWidth(16)} />
 
             <Pressable
-              onPress={() => setIsSignUp(!isSignUp)}
-              style={{alignItems: 'center'}}>
+              onPress={() => {
+                if (isSignUp) {
+                  // 회원가입에서 로그인으로 전환 시 모든 입력 데이터 초기화
+                  setUsername('');
+                  setEmail('');
+                  setPassword('');
+                  setNickname('');
+                  setEmailError(null);
+                  setUsernameError(null);
+                  setCheckingEmail(false);
+                  setCheckingUsername(false);
+                }
+                setIsSignUp(!isSignUp);
+              }}
+              style={({pressed}) => [
+                {
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  paddingVertical: scaleWidth(8),
+                  opacity: pressed ? 0.7 : 1,
+                },
+              ]}>
               <Typography variant="caption" color={colors.textSecondary}>
-                {isSignUp
-                  ? '이미 계정이 있으신가요? 로그인'
-                  : '계정이 없으신가요? 회원가입'}
+                {isSignUp ? '이미 계정이 있으신가요? ' : '계정이 없으신가요? '}
+              </Typography>
+              <Typography
+                variant="caption"
+                color={colors.primary}
+                style={{
+                  fontWeight: '700',
+                  textDecorationLine: 'underline',
+                }}>
+                {isSignUp ? '로그인' : '회원가입'}
               </Typography>
             </Pressable>
           </View>

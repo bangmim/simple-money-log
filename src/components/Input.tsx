@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, forwardRef} from 'react';
 import {View, TextInput, TextInputProps, StyleSheet} from 'react-native';
 import colors from '../theme/colors';
 import {getFontFamily} from '../theme/typography';
@@ -13,43 +13,59 @@ type InputProps = {
   fontSize?: number;
   multiline?: boolean;
   height?: number;
+  error?: boolean;
+  errorPressed?: boolean;
 };
 
-export const Input: React.FC<InputProps> = ({
-  value,
-  onChangeText,
-  placeholder,
-  keyboardType,
-  onSubmitEditing,
-  fontSize = scaleWidth(20),
-  multiline = false,
-  height,
-}) => {
-  const [focused, setFocused] = useState(false);
+export const Input = forwardRef<TextInput, InputProps>(
+  (
+    {
+      value,
+      onChangeText,
+      placeholder,
+      keyboardType,
+      onSubmitEditing,
+      fontSize = scaleWidth(20),
+      multiline = false,
+      height,
+      error = false,
+      errorPressed = false,
+    },
+    ref,
+  ) => {
+    const [focused, setFocused] = useState(false);
 
-  return (
-    <View style={[styles.container, focused && styles.focusedContainer]}>
-      <TextInput
-        autoCorrect={false}
-        autoCapitalize="none"
-        value={value}
-        keyboardType={keyboardType}
-        onChangeText={onChangeText}
-        placeholder={placeholder}
-        onSubmitEditing={onSubmitEditing}
-        multiline={multiline}
-        textAlignVertical={multiline ? 'top' : 'center'}
+    return (
+      <View
         style={[
-          styles.input,
-          {fontSize},
-          ...(multiline && height ? [{height}] : []),
-        ]}
-        onFocus={() => setFocused(true)}
-        onBlur={() => setFocused(false)}
-      />
-    </View>
-  );
-};
+          styles.container,
+          focused && !error && !errorPressed && styles.focusedContainer,
+          error && !errorPressed && styles.errorContainer,
+          error && errorPressed && styles.errorPressedContainer,
+        ]}>
+        <TextInput
+          ref={ref}
+          autoCorrect={false}
+          autoCapitalize="none"
+          value={value}
+          keyboardType={keyboardType}
+          onChangeText={onChangeText}
+          placeholder={placeholder}
+          onSubmitEditing={onSubmitEditing}
+          multiline={multiline}
+          textAlignVertical={multiline ? 'top' : 'center'}
+          style={[
+            styles.input,
+            {fontSize},
+            ...(multiline && height ? [{height}] : []),
+          ]}
+          onFocus={() => setFocused(true)}
+          onBlur={() => setFocused(false)}
+        />
+      </View>
+    );
+  },
+);
 
 const styles = StyleSheet.create({
   container: {
@@ -63,6 +79,13 @@ const styles = StyleSheet.create({
   focusedContainer: {
     borderColor: colors.borderFocused,
   },
+  errorContainer: {
+    borderColor: colors.danger,
+  },
+  errorPressedContainer: {
+    borderColor: colors.danger,
+    borderWidth: 2,
+  },
   input: {
     paddingVertical: 0,
     fontFamily: getFontFamily(),
@@ -70,10 +93,11 @@ const styles = StyleSheet.create({
 });
 
 // 하위 호환성을 위한 별칭
-export const SingleLineInput: React.FC<
-  Omit<InputProps, 'multiline' | 'height'>
-> = props => <Input {...props} multiline={false} />;
+export const SingleLineInput = forwardRef<TextInput, Omit<InputProps, 'multiline' | 'height'>>(
+  (props, ref) => <Input {...props} ref={ref} multiline={false} />,
+);
 
-export const MultiLineInput: React.FC<
+export const MultiLineInput = forwardRef<
+  TextInput,
   Omit<InputProps, 'multiline'> & {height?: number}
-> = props => <Input {...props} multiline={true} />;
+>((props, ref) => <Input {...props} ref={ref} multiline={true} />);

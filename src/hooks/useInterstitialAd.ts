@@ -25,23 +25,17 @@ export const useInterstitialAd = () => {
       const unsubscribeLoaded = ad.addAdEventListener(
         AdEventType.LOADED,
         () => {
-          console.log('[InterstitialAd] Ad loaded');
           setIsAdLoaded(true);
         },
       );
 
-      const unsubscribeError = ad.addAdEventListener(
-        AdEventType.ERROR,
-        error => {
-          console.warn('[InterstitialAd] Ad error:', error);
-          setIsAdLoaded(false);
-        },
-      );
+      const unsubscribeError = ad.addAdEventListener(AdEventType.ERROR, () => {
+        setIsAdLoaded(false);
+      });
 
       const unsubscribeClosed = ad.addAdEventListener(
         AdEventType.CLOSED,
         () => {
-          console.log('[InterstitialAd] Ad closed');
           setIsAdLoaded(false);
           // 광고가 닫힌 후 새로운 광고 로드
           ad.load();
@@ -57,14 +51,11 @@ export const useInterstitialAd = () => {
         unsubscribeError();
         unsubscribeClosed();
       };
-    } catch (error) {
-      console.warn('[InterstitialAd] Failed to create ad:', error);
-    }
+    } catch (error) {}
   }, []);
 
   const showAd = () => {
     if (Platform.OS !== 'android' || !interstitialAd || !isAdLoaded) {
-      console.log('[InterstitialAd] Ad not ready to show');
       return false;
     }
 
@@ -72,7 +63,6 @@ export const useInterstitialAd = () => {
       interstitialAd.show();
       return true;
     } catch (error) {
-      console.warn('[InterstitialAd] Failed to show ad:', error);
       return false;
     }
   };

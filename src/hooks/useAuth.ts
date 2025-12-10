@@ -151,7 +151,73 @@ export const useAuth = () => {
     return signIn(userData.email, password);
   };
 
-  // 아이디와 이메일 중복 체크
+  // 이메일 중복 체크 (개별)
+  const checkEmailDuplicate = async (email: string) => {
+    if (!supabase) {
+      return {isDuplicate: false, error: {message: 'Supabase not configured'}};
+    }
+
+    if (!email || !email.trim()) {
+      return {isDuplicate: false, error: null};
+    }
+
+    try {
+      const {data, error} = await supabase
+        .from('users')
+        .select('email')
+        .eq('email', email.trim())
+        .maybeSingle();
+
+      if (error && error.code !== 'PGRST116') {
+        console.error('Email check error:', error);
+        return {isDuplicate: false, error: null};
+      }
+
+      return {
+        isDuplicate: !!data,
+        error: data ? {message: '이미 사용 중인 이메일입니다.'} : null,
+      };
+    } catch (error: any) {
+      console.error('Email duplicate check error:', error);
+      // 타임아웃이나 네트워크 에러는 조용히 처리
+      return {isDuplicate: false, error: null};
+    }
+  };
+
+  // 아이디 중복 체크 (개별)
+  const checkUsernameDuplicate = async (username: string) => {
+    if (!supabase) {
+      return {isDuplicate: false, error: {message: 'Supabase not configured'}};
+    }
+
+    if (!username || !username.trim()) {
+      return {isDuplicate: false, error: null};
+    }
+
+    try {
+      const {data, error} = await supabase
+        .from('users')
+        .select('username')
+        .eq('username', username.trim())
+        .maybeSingle();
+
+      if (error && error.code !== 'PGRST116') {
+        console.error('Username check error:', error);
+        return {isDuplicate: false, error: null};
+      }
+
+      return {
+        isDuplicate: !!data,
+        error: data ? {message: '이미 사용 중인 아이디입니다.'} : null,
+      };
+    } catch (error: any) {
+      console.error('Username duplicate check error:', error);
+      // 타임아웃이나 네트워크 에러는 조용히 처리
+      return {isDuplicate: false, error: null};
+    }
+  };
+
+  // 아이디와 이메일 중복 체크 (회원가입 시 사용)
   const checkDuplicate = async (email: string, username: string) => {
     if (!supabase) {
       return {isDuplicate: false, error: {message: 'Supabase not configured'}};
@@ -162,7 +228,7 @@ export const useAuth = () => {
       const {data: emailData, error: emailError} = await supabase
         .from('users')
         .select('email')
-        .eq('email', email)
+        .eq('email', email.trim())
         .maybeSingle();
 
       if (emailError && emailError.code !== 'PGRST116') {
@@ -181,7 +247,7 @@ export const useAuth = () => {
       const {data: usernameData, error: usernameError} = await supabase
         .from('users')
         .select('username')
-        .eq('username', username)
+        .eq('username', username.trim())
         .maybeSingle();
 
       if (usernameError && usernameError.code !== 'PGRST116') {
@@ -388,6 +454,8 @@ export const useAuth = () => {
     signOut,
     updateNickname,
     deleteAccount,
+    checkEmailDuplicate,
+    checkUsernameDuplicate,
     isAuthenticated: !!session,
   };
 };
