@@ -13,6 +13,7 @@ import {Typography} from '../components/Typography';
 import {Button} from '../components/Button';
 import {Input} from '../components/Input';
 import {supabase} from '../config/supabase';
+import {BannerAdView} from '../components/BannerAdView';
 
 export const MyPageScreen: React.FC = () => {
   const navigation = useRootNavigation();
@@ -246,6 +247,8 @@ export const MyPageScreen: React.FC = () => {
           disabled={loading}
         />
       </ScrollView>
+      {/* 배너 광고 */}
+      <BannerAdView />
     </SafeAreaView>
   );
 };

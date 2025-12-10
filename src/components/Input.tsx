@@ -38,6 +38,7 @@ export const Input: React.FC<InputProps> = ({
         placeholder={placeholder}
         onSubmitEditing={onSubmitEditing}
         multiline={multiline}
+        textAlignVertical={multiline ? 'top' : 'center'}
         style={[
           styles.input,
           {fontSize},

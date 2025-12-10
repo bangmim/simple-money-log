@@ -51,7 +51,7 @@
 	<key>NSCameraUsageDescription</key>
 	<string>$(PRODUCT_NAME) needs access to your Camera.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>$(PRODUCT_NAME) needs access to your Camera.</string>
+	<string>사진을 선택하기 위해 앨범 접근 권한이 필요합니다.</string>
   <key>GADApplicationIdentifier</key>
     <string>ca-app-pub-6066778698509308~2674337167</string>
 </dict>

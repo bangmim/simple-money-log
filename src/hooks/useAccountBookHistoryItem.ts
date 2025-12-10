@@ -40,9 +40,11 @@ export const useAccountBookHistoryItem = () => {
           throw new Error(error.message);
         }
 
+        // 데이터베이스의 '사용'을 '지출'로 변환 (하위 호환성)
+        const normalizedType = data.type === '사용' ? '지출' : data.type;
         return {
           id: data.id,
-          type: data.type as '사용' | '수입',
+          type: normalizedType as '지출' | '수입',
           price: data.price,
           comment: data.comment,
           date: data.date,
@@ -77,16 +79,20 @@ export const useAccountBookHistoryItem = () => {
         return [];
       }
 
-      return data.map((item: any) => ({
-        id: item.id,
-        type: item.type as '사용' | '수입',
-        price: item.price,
-        comment: item.comment,
-        date: item.date,
-        photoUrl: item.photo_url, // Supabase는 snake_case 반환
-        createdAt: item.created_at,
-        updatedAt: item.updated_at,
-      }));
+      return data.map((item: any) => {
+        // 데이터베이스의 '사용'을 '지출'로 변환 (하위 호환성)
+        const normalizedType = item.type === '사용' ? '지출' : item.type;
+        return {
+          id: item.id,
+          type: normalizedType as '지출' | '수입',
+          price: item.price,
+          comment: item.comment,
+          date: item.date,
+          photoUrl: item.photo_url, // Supabase는 snake_case 반환
+          createdAt: item.created_at,
+          updatedAt: item.updated_at,
+        };
+      });
     }, [user]),
     updateItem: useCallback<
       (item: AccountBookHistory) => Promise<AccountBookHistory>
@@ -106,9 +112,11 @@ export const useAccountBookHistoryItem = () => {
 
         const now = new Date().getTime();
 
+        // 데이터베이스에 저장할 때 타입도 업데이트
         const {data, error} = await supabase
           .from('account_history')
           .update({
+            type: item.type,
             price: item.price,
             comment: item.comment,
             date: item.date,
@@ -124,9 +132,11 @@ export const useAccountBookHistoryItem = () => {
           throw new Error(error.message);
         }
 
+        // 데이터베이스의 '사용'을 '지출'로 변환 (하위 호환성)
+        const normalizedType = data.type === '사용' ? '지출' : data.type;
         return {
           id: data.id,
-          type: data.type as '사용' | '수입',
+          type: normalizedType as '지출' | '수입',
           price: data.price,
           comment: data.comment,
           date: data.date,

@@ -2,10 +2,9 @@ import {useEffect, useState} from 'react';
 import {Platform} from 'react-native';
 import {InterstitialAd, AdEventType} from 'react-native-google-mobile-ads';
 
-// 개발 중에는 테스트 광고 ID 사용, 프로덕션에서는 실제 광고 ID로 변경
 const AD_UNIT_ID = __DEV__
   ? 'ca-app-pub-3940256099942544/1033173712' // Google 테스트 전면 광고 ID
-  : 'ca-app-pub-6066778698509308/7282939667'; // 실제 전면 광고 ID (실제 ID로 변경 필요)
+  : 'ca-app-pub-6066778698509308/1843174055'; // 실제 전면 광고 ID (AdMob에서 전면 광고 단위 생성 후 ID 입력)
 
 export const useInterstitialAd = () => {
   const [interstitialAd, setInterstitialAd] = useState<InterstitialAd | null>(

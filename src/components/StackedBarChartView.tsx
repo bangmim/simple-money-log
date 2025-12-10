@@ -69,7 +69,7 @@ export const StackedBarChartView: React.FC<StackedBarChartViewProps> = ({
     <StackedBarChart
       data={{
         labels,
-        legend: ['사용', '수입'],
+        legend: ['지출', '수입'],
         data: processedData,
         barColors,
       }}

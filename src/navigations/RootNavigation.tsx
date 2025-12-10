@@ -14,7 +14,6 @@ import {
   useNavigationState,
 } from '@react-navigation/native';
 import {CalendarSelectScreen} from '../screens/CalendarSelectScreen';
-import {TakePhotoScreen} from '../screens/TakePhotoScreen';
 import {SelectPhotoScreen} from '../screens/SelectPhotoScreen';
 import {LoginScreen} from '../screens/LoginScreen';
 import {MyPageScreen} from '../screens/MyPageScreen';
@@ -98,7 +97,6 @@ export const RootNavigation = () => {
             component={CalendarSelectScreen}
             options={{presentation: 'transparentModal', animation: 'fade'}}
           />
-          <Stack.Screen name={ROUTES.TAKE_PHOTO} component={TakePhotoScreen} />
           <Stack.Screen
             name={ROUTES.SELECT_PHOTO}
             component={SelectPhotoScreen}

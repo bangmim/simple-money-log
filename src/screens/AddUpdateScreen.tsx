@@ -1,5 +1,12 @@
 import React, {useCallback, useState} from 'react';
-import {Alert, Modal, Pressable, ScrollView, View} from 'react-native';
+import {
+  Alert,
+  Modal,
+  Pressable,
+  ScrollView,
+  View,
+  Platform,
+} from 'react-native';
 import {Header} from '../components/Header/Header';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {faClose} from '@fortawesome/free-solid-svg-icons';
@@ -18,6 +25,19 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 import {useFocusEffect} from '@react-navigation/native';
 import {CalendarSelectScreen} from './CalendarSelectScreen';
 import {scaleWidth} from '../utils/responsive';
+import {
+  launchImageLibrary,
+  launchCamera,
+  ImagePickerResponse,
+  MediaType,
+} from 'react-native-image-picker';
+import {
+  PERMISSIONS,
+  request,
+  RESULTS,
+  check,
+  PermissionStatus,
+} from 'react-native-permissions';
 
 export const AddUpdateScreen: React.FC = () => {
   const navigation = useRootNavigation<'Add' | 'Update'>();
@@ -27,7 +47,7 @@ export const AddUpdateScreen: React.FC = () => {
 
   const [item, setItem] = useState<AccountBookHistory>(
     (routes.params && 'item' in routes.params ? routes.params.item : null) ?? {
-      type: '사용',
+      type: '지출',
       price: 0,
       comment: '',
       date: 0,
@@ -39,9 +59,6 @@ export const AddUpdateScreen: React.FC = () => {
 
   const onPressType = useCallback<(type: AccountBookHistory['type']) => void>(
     type => {
-      if (routes.name === 'Update') {
-        return;
-      }
       setItem(prevItem => {
         return {
           ...prevItem,
@@ -49,7 +66,7 @@ export const AddUpdateScreen: React.FC = () => {
         };
       });
     },
-    [routes.name],
+    [],
   );
   const onChangePrice = useCallback<(text: string) => void>(text => {
     setItem(prevState => ({
@@ -62,28 +79,97 @@ export const AddUpdateScreen: React.FC = () => {
     Alert.alert('사진 추가', '어떤 방법으로 사진을 추가할까요?', [
       {
         text: '카메라로 촬영',
-        onPress: () => {
-          navigation.push('TakePhoto', {
-            onTakePhoto: url => {
-              setItem(prevState => ({
-                ...prevState,
-                photoUrl: url,
-              }));
+        onPress: async () => {
+          // 카메라 권한 확인 및 요청
+          if (Platform.OS === 'android') {
+            let permissionStatus: PermissionStatus = await check(
+              PERMISSIONS.ANDROID.CAMERA,
+            );
+
+            if (permissionStatus !== RESULTS.GRANTED) {
+              permissionStatus = await request(PERMISSIONS.ANDROID.CAMERA);
+            }
+
+            if (permissionStatus !== RESULTS.GRANTED) {
+              Alert.alert(
+                '권한 필요',
+                '카메라로 사진을 촬영하려면 카메라 권한이 필요합니다.',
+              );
+              return;
+            }
+          } else {
+            let permissionStatus: PermissionStatus = await check(
+              PERMISSIONS.IOS.CAMERA,
+            );
+
+            if (permissionStatus !== RESULTS.GRANTED) {
+              permissionStatus = await request(PERMISSIONS.IOS.CAMERA);
+            }
+
+            if (permissionStatus !== RESULTS.GRANTED) {
+              Alert.alert(
+                '권한 필요',
+                '카메라로 사진을 촬영하려면 카메라 권한이 필요합니다.',
+              );
+              return;
+            }
+          }
+
+          // 권한이 허용된 경우 카메라 실행
+          launchCamera(
+            {
+              mediaType: 'photo' as MediaType,
+              quality: 0.8,
+              saveToPhotos: true,
             },
-          });
+            (response: ImagePickerResponse) => {
+              if (response.didCancel) {
+                return;
+              }
+              if (response.errorMessage) {
+                Alert.alert('오류', response.errorMessage);
+                return;
+              }
+              if (response.assets && response.assets[0]) {
+                const uri = response.assets[0].uri;
+                if (uri) {
+                  setItem(prevState => ({
+                    ...prevState,
+                    photoUrl: Platform.OS === 'android' ? `file://${uri}` : uri,
+                  }));
+                }
+              }
+            },
+          );
         },
       },
       {
         text: '앨범에서 선택',
         onPress: () => {
-          navigation.push('SelectPhoto', {
-            onSelectPhoto: url => {
-              setItem(prevState => ({
-                ...prevState,
-                photoUrl: url,
-              }));
+          launchImageLibrary(
+            {
+              mediaType: 'photo' as MediaType,
+              quality: 0.8,
             },
-          });
+            (response: ImagePickerResponse) => {
+              if (response.didCancel) {
+                return;
+              }
+              if (response.errorMessage) {
+                Alert.alert('오류', response.errorMessage);
+                return;
+              }
+              if (response.assets && response.assets[0]) {
+                const uri = response.assets[0].uri;
+                if (uri) {
+                  setItem(prevState => ({
+                    ...prevState,
+                    photoUrl: Platform.OS === 'android' ? `file://${uri}` : uri,
+                  }));
+                }
+              }
+            },
+          );
         },
       },
       {
@@ -91,7 +177,7 @@ export const AddUpdateScreen: React.FC = () => {
         style: 'cancel',
       },
     ]);
-  }, [navigation]);
+  }, []);
   const [modalVisible, setModalVisible] = useState(false);
   const onPressCalandar = useCallback(() => {
     setModalVisible(true);
@@ -100,6 +186,13 @@ export const AddUpdateScreen: React.FC = () => {
   useFocusEffect(
     useCallback(() => {
       const params = routes.params as any;
+
+      // 수정 모드일 때 item이 전달되면 업데이트
+      if (routes.name === 'Update' && params?.item) {
+        setItem(params.item);
+      }
+
+      // 날짜 선택 업데이트
       if (params?.selectedDate) {
         setItem(prevState => ({
           ...prevState,
@@ -107,7 +200,7 @@ export const AddUpdateScreen: React.FC = () => {
         }));
         navigation.setParams({...params, selectedDate: undefined} as any);
       }
-    }, [routes.params, navigation]),
+    }, [routes.params, routes.name, navigation]),
   );
 
   const onChangeComment = useCallback<(text: string) => void>(text => {
@@ -118,6 +211,17 @@ export const AddUpdateScreen: React.FC = () => {
   }, []);
 
   const onPressSave = useCallback(async () => {
+    // 유효성 검사
+    if (!item.price || item.price <= 0) {
+      Alert.alert('입력 오류', '금액을 입력해주세요.');
+      return;
+    }
+
+    if (!item.comment || item.comment.trim() === '') {
+      Alert.alert('입력 오류', '내용을 입력해주세요.');
+      return;
+    }
+
     try {
       if (routes.name === 'Add') {
         await insertItem(item);
@@ -157,7 +261,7 @@ export const AddUpdateScreen: React.FC = () => {
         <TypeSelector
           selectedType={item.type}
           onSelectType={onPressType}
-          disabled={routes.name === 'Update'}
+          disabled={false}
         />
 
         <Spacer space={scaleWidth(20)} />

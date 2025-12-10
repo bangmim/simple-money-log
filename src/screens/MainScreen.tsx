@@ -107,7 +107,7 @@ export const MainScreen: React.FC = () => {
       if (idx < 0 || idx >= daysInMonth) {
         return;
       }
-      if (item.type === '사용') {
+      if (item.type === '지출') {
         expense[idx] += item.price;
       } else {
         income[idx] += item.price;
@@ -155,7 +155,7 @@ export const MainScreen: React.FC = () => {
 
       const group = map.get(dayTs)!;
       group.items.push(item);
-      if (item.type === '사용') {
+      if (item.type === '지출') {
         group.totalExpense += item.price;
       } else {
         group.totalIncome += item.price;
@@ -190,7 +190,7 @@ export const MainScreen: React.FC = () => {
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: colors.background}}>
       <Header>
-        <Header.Title title={nickname ? `${nickname}의 가계부` : '가계부'} />
+        <Header.Title title={nickname ? `${nickname}님의 가계부` : '가계부'} />
         <Pressable
           onPress={handleMyPage}
           hitSlop={{top: 10, bottom: 10, left: 10, right: 10}}>
@@ -273,7 +273,7 @@ export const MainScreen: React.FC = () => {
                 }}>
                 <Typography variant="bodyBold">{dateLabel}</Typography>
                 <Typography variant="caption" color={colors.textSecondary}>
-                  사용 {item.totalExpense.toLocaleString()}원 / 수입{' '}
+                  지출 {item.totalExpense.toLocaleString()}원 / 수입{' '}
                   {item.totalIncome.toLocaleString()}원
                 </Typography>
               </View>

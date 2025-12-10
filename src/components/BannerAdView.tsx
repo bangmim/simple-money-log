@@ -18,45 +18,38 @@ export const BannerAdView: React.FC = () => {
   useEffect(() => {
     // AdMob은 Android에서만 사용
     if (Platform.OS !== 'android') {
-      console.log('[BannerAdView] Not Android, skipping AdMob initialization');
+      // console.log('[BannerAdView] Not Android, skipping AdMob initialization');
       return;
     }
 
-    console.log('[BannerAdView] Starting AdMob initialization...');
+    // console.log('[BannerAdView] Starting AdMob initialization...');
     try {
       mobileAds()
         .initialize()
-        .then(adapterStatuses => {
-          console.log(
-            '[BannerAdView] AdMob initialized successfully',
-            adapterStatuses,
-          );
+        .then(() => {
+          // console.log(
+          //   '[BannerAdView] AdMob initialized successfully',
+          //   adapterStatuses,
+          // );
           setIsAdMobAvailable(true);
         })
-        .catch(error => {
-          console.warn('[BannerAdView] AdMob initialization failed:', error);
+        .catch(() => {
+          // console.warn('[BannerAdView] AdMob initialization failed:', error);
           setIsAdMobAvailable(false);
         });
     } catch (error) {
-      console.warn('[BannerAdView] AdMob module not available:', error);
+      // console.warn('[BannerAdView] AdMob module not available:', error);
       setIsAdMobAvailable(false);
     }
   }, []);
 
-  console.log(
-    '[BannerAdView] Render - Platform:',
-    Platform.OS,
-    'isAdMobAvailable:',
-    isAdMobAvailable,
-  );
-
   if (Platform.OS !== 'android') {
-    console.log('[BannerAdView] Not Android platform, returning null');
+    // console.log('[BannerAdView] Not Android platform, returning null');
     return null;
   }
 
   if (!isAdMobAvailable) {
-    console.log('[BannerAdView] AdMob not available yet, returning null');
+    // console.log('[BannerAdView] AdMob not available yet, returning null');
     return null;
   }
 
@@ -80,10 +73,10 @@ export const BannerAdView: React.FC = () => {
             requestNonPersonalizedAdsOnly: true,
           }}
           onAdLoaded={() => {
-            console.log('[BannerAdView] Ad loaded successfully');
+            // console.log('[BannerAdView] Ad loaded successfully');
           }}
-          onAdFailedToLoad={error => {
-            console.error('[BannerAdView] Ad failed to load:', error);
+          onAdFailedToLoad={() => {
+            // console.error('[BannerAdView] Ad failed to load:', error);
           }}
         />
       </View>

@@ -19,19 +19,19 @@ export const TypeSelector: React.FC<TypeSelectorProps> = ({
   return (
     <View style={styles.container}>
       <View style={styles.buttonContainer}>
-        <Pressable onPress={() => onSelectType('사용')} disabled={disabled}>
+        <Pressable onPress={() => onSelectType('지출')} disabled={disabled}>
           <View
             style={[
               styles.button,
               styles.leftButton,
-              selectedType === '사용' && styles.selectedButton,
+              selectedType === '지출' && styles.selectedButton,
             ]}>
             <Text
               style={[
                 styles.buttonText,
-                selectedType === '사용' && styles.selectedText,
+                selectedType === '지출' && styles.selectedText,
               ]}>
-              사용
+              지출
             </Text>
           </View>
         </Pressable>

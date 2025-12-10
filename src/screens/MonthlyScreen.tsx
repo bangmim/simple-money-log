@@ -95,7 +95,7 @@ export const MonthlyScreen: React.FC = () => {
         const current = summary.get(key)!;
         // price가 유효한 숫자인지 확인
         const price = Number(item.price) || 0;
-        if (item.type === '사용') {
+        if (item.type === '지출') {
           current.expense += price;
         } else {
           current.income += price;

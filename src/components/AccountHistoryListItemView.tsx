@@ -14,8 +14,8 @@ export const AccountBookHistoryListItemView: React.FC<{
   item: AccountBookHistory;
   onPressItem: (item: AccountBookHistory) => void;
 }> = props => {
-  const IconStyle = props.item.type === '사용' ? faCircleMinus : faCirclePlus;
-  const IconColor = props.item.type === '사용' ? colors.danger : colors.accent;
+  const IconStyle = props.item.type === '지출' ? faCircleMinus : faCirclePlus;
+  const IconColor = props.item.type === '지출' ? colors.danger : colors.accent;
   return (
     <Pressable onPress={() => props.onPressItem(props.item)}>
       <View

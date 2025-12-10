@@ -25,7 +25,7 @@ export const MonthlySummaryItem: React.FC<MonthlySummaryItemProps> = ({
         {label}
       </Typography>
       <Typography variant="caption" color={colors.textSecondary}>
-        사용 {expense.toLocaleString()}원 / 수입 {income.toLocaleString()}원
+        지출 {expense.toLocaleString()}원 / 수입 {income.toLocaleString()}원
       </Typography>
     </View>
   );

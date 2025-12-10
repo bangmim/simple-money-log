@@ -2,7 +2,7 @@
 
 export type AccountBookHistory = {
   id?: number;
-  type: '사용' | '수입';
+  type: '지출' | '수입';
   price: number;
   comment: string;
   date: number;
