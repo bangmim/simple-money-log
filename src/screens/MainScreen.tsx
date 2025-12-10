@@ -133,6 +133,9 @@ export const MainScreen: React.FC = () => {
 
   const dailyGroups = useMemo<DailyGroup[]>(() => {
     const map = new Map<number, DailyGroup>();
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth();
 
     list.forEach(item => {
       const time = item.date !== 0 ? item.date : item.createdAt;
@@ -141,6 +144,10 @@ export const MainScreen: React.FC = () => {
       }
 
       const d = new Date(time);
+      // 이번 달 데이터만 표시
+      if (d.getFullYear() !== currentYear || d.getMonth() !== currentMonth) {
+        return;
+      }
       d.setHours(0, 0, 0, 0);
       const dayTs = d.getTime();
 
