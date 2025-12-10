@@ -1,5 +1,6 @@
 import React, {useCallback, useEffect, useState} from 'react';
-import {Alert, Pressable, ScrollView, View} from 'react-native';
+import {Alert, Linking, Pressable, ScrollView, View} from 'react-native';
+import Clipboard from '@react-native-clipboard/clipboard';
 import {Header} from '../components/Header/Header';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {faClose, faUser} from '@fortawesome/free-solid-svg-icons';
@@ -14,7 +15,6 @@ import {Button} from '../components/Button';
 import {Input} from '../components/Input';
 import {supabase} from '../config/supabase';
 import {BannerAdView} from '../components/BannerAdView';
-import {useFocusEffect} from '@react-navigation/native';
 
 export const MyPageScreen: React.FC = () => {
   const navigation = useRootNavigation();
@@ -22,27 +22,6 @@ export const MyPageScreen: React.FC = () => {
   const [nickname, setNickname] = useState('');
   const [isEditingNickname, setIsEditingNickname] = useState(false);
   const [loading, setLoading] = useState(false);
-
-  // 세션 새로고침 (이메일 변경 등 반영)
-  useFocusEffect(
-    useCallback(() => {
-      const refreshSession = async () => {
-        if (!supabase || !supabase.auth) {
-          return;
-        }
-        try {
-          // 세션을 새로고침하여 최신 사용자 정보 가져오기
-          const {error} = await supabase.auth.refreshSession();
-          if (error) {
-            console.warn('Failed to refresh session:', error);
-          }
-        } catch (error) {
-          console.warn('Error refreshing session:', error);
-        }
-      };
-      refreshSession();
-    }, []),
-  );
 
   // 닉네임 가져오기
   useEffect(() => {
@@ -134,6 +113,66 @@ export const MyPageScreen: React.FC = () => {
       },
     });
   }, [deleteAccount]);
+
+  const handleContact = useCallback(async () => {
+    const email = 'akiyun10@gmail.com';
+    const subject = encodeURIComponent('딱,가계부 문의');
+    const body = encodeURIComponent(
+      '안녕하세요.\n\n문의 내용을 작성해주세요.\n\n감사합니다.',
+    );
+    const mailtoUrl = `mailto:${email}?subject=${subject}&body=${body}`;
+
+    try {
+      // 먼저 이메일 앱이 있는지 확인
+      const canOpen = await Linking.canOpenURL(mailtoUrl).catch(() => false);
+
+      if (canOpen) {
+        // 이메일 앱이 있으면 열기
+        await Linking.openURL(mailtoUrl);
+      } else {
+        // 이메일 앱이 없는 경우: 클립보드에 복사 또는 Gmail 웹 열기
+        Alert.alert(
+          '이메일 앱 없음',
+          `이메일 앱이 설치되어 있지 않습니다.\n\n이메일 주소: ${email}`,
+          [
+            {
+              text: '취소',
+              style: 'cancel',
+            },
+            {
+              text: '이메일 주소 복사',
+              onPress: () => {
+                Clipboard.setString(email);
+                Alert.alert(
+                  '복사 완료',
+                  '이메일 주소가 클립보드에 복사되었습니다.',
+                );
+              },
+            },
+            {
+              text: 'Gmail 웹 열기',
+              onPress: () => {
+                const gmailUrl = `https://mail.google.com/mail/?view=cm&to=${encodeURIComponent(
+                  email,
+                )}&su=${subject}&body=${body}`;
+                Linking.openURL(gmailUrl).catch(() => {
+                  Alert.alert('오류', 'Gmail 웹을 열 수 없습니다.');
+                });
+              },
+            },
+          ],
+        );
+      }
+    } catch (error: any) {
+      console.error('Failed to open email:', error);
+      // 에러 발생 시 클립보드에 복사
+      Clipboard.setString(email);
+      Alert.alert(
+        '이메일 앱 열기 실패',
+        `이메일 앱을 열 수 없습니다.\n\n이메일 주소가 클립보드에 복사되었습니다: ${email}`,
+      );
+    }
+  }, []);
 
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: colors.background}}>
@@ -257,6 +296,15 @@ export const MyPageScreen: React.FC = () => {
               </Pressable>
             </View>
           )}
+        </View>
+
+        {/* 문의하기 버튼 */}
+        <View style={{marginBottom: 12}}>
+          <Button
+            title="문의하기"
+            onPress={handleContact}
+            variant="secondary"
+          />
         </View>
 
         {/* 로그아웃 버튼 */}

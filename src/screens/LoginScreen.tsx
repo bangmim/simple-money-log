@@ -72,9 +72,26 @@ export const LoginScreen: React.FC = () => {
           setNickname('');
         }
       } else {
-        const {error} = await signInWithUsername(identifier, password);
+        // 공백 제거
+        const trimmedIdentifier = identifier.trim();
+        const trimmedPassword = password.trim();
+
+        if (!trimmedIdentifier || !trimmedPassword) {
+          Alert.alert(
+            '오류',
+            '아이디, 이메일 또는 닉네임과 비밀번호를 입력해주세요.',
+          );
+          setLoading(false);
+          return;
+        }
+
+        const {error} = await signInWithUsername(
+          trimmedIdentifier,
+          trimmedPassword,
+        );
         if (error) {
-          Alert.alert('로그인 실패', error.message);
+          console.error('Login error:', error);
+          Alert.alert('로그인 실패', error.message || '로그인에 실패했습니다.');
         }
         // 성공 시 useAuth의 onAuthStateChange가 자동으로 처리
       }

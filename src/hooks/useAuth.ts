@@ -151,6 +151,57 @@ export const useAuth = () => {
     return signIn(userData.email, password);
   };
 
+  // 아이디와 이메일 중복 체크
+  const checkDuplicate = async (email: string, username: string) => {
+    if (!supabase) {
+      return {isDuplicate: false, error: {message: 'Supabase not configured'}};
+    }
+
+    try {
+      // 1. users 테이블에서 이메일 중복 체크
+      const {data: emailData, error: emailError} = await supabase
+        .from('users')
+        .select('email')
+        .eq('email', email)
+        .maybeSingle();
+
+      if (emailError && emailError.code !== 'PGRST116') {
+        // PGRST116은 데이터가 없을 때의 에러 코드이므로 무시
+        console.error('Email check error:', emailError);
+      }
+
+      if (emailData) {
+        return {
+          isDuplicate: true,
+          error: {message: '이미 사용 중인 이메일입니다.'},
+        };
+      }
+
+      // 2. users 테이블에서 아이디 중복 체크
+      const {data: usernameData, error: usernameError} = await supabase
+        .from('users')
+        .select('username')
+        .eq('username', username)
+        .maybeSingle();
+
+      if (usernameError && usernameError.code !== 'PGRST116') {
+        console.error('Username check error:', usernameError);
+      }
+
+      if (usernameData) {
+        return {
+          isDuplicate: true,
+          error: {message: '이미 사용 중인 아이디입니다.'},
+        };
+      }
+
+      return {isDuplicate: false, error: null};
+    } catch (error: any) {
+      console.error('Duplicate check error:', error);
+      return {isDuplicate: false, error: {message: error.message}};
+    }
+  };
+
   const signUp = async (
     email: string,
     password: string,
@@ -161,28 +212,45 @@ export const useAuth = () => {
       return {data: null, error: {message: 'Supabase not configured'}};
     }
     try {
+      // 0. 중복 체크 (이메일, 아이디)
+      const {isDuplicate, error: duplicateError} = await checkDuplicate(
+        email.trim(),
+        username.trim(),
+      );
+
+      if (isDuplicate && duplicateError) {
+        return {data: null, error: duplicateError};
+      }
+
       // 1. Supabase Auth에 회원가입
       const {data: authData, error: authError} = await supabase.auth.signUp({
-        email,
+        email: email.trim(),
         password,
         options: {
           data: {
-            nickname: nickname || '',
-            username: username,
+            nickname: nickname?.trim() || '',
+            username: username.trim(),
           },
         },
       });
 
       if (authError || !authData.user) {
+        // Supabase Auth 에러 메시지 개선
+        if (authError?.message?.includes('already registered')) {
+          return {
+            data: null,
+            error: {message: '이미 사용 중인 이메일입니다.'},
+          };
+        }
         return {data: null, error: authError || {message: 'Sign up failed'}};
       }
 
       // 2. users 테이블에 아이디-이메일 매핑 저장
       const {error: dbError} = await supabase.from('users').insert({
         id: authData.user.id,
-        username: username,
-        email: email,
-        nickname: nickname || '',
+        username: username.trim(),
+        email: email.trim(),
+        nickname: nickname?.trim() || '',
       });
 
       if (dbError) {

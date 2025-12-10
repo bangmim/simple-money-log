@@ -28,6 +28,7 @@ import {Typography} from '../components/Typography';
 import {scaleWidth} from '../utils/responsive';
 import {BannerAdView} from '../components/BannerAdView';
 import {supabase} from '../config/supabase';
+import {ROUTES} from '../navigations/routes';
 
 export const MainScreen: React.FC = () => {
   const safeAreaInset = useSafeAreaInsets();
@@ -184,7 +185,7 @@ export const MainScreen: React.FC = () => {
     [deleteItem, fetchList],
   );
   const handleMyPage = useCallback(() => {
-    navigation.push('MyPage');
+    navigation.push(ROUTES.MY_PAGE);
   }, [navigation]);
 
   return (
@@ -228,7 +229,7 @@ export const MainScreen: React.FC = () => {
                     Alert.alert('알림', '표시할 데이터가 없습니다.');
                     return;
                   }
-                  navigation.push('MonthlyAverage');
+                  navigation.push(ROUTES.MONTHLY_AVERAGE);
                 }}>
                 <Typography variant="caption" color={colors.primary}>
                   자세히 보기
@@ -254,7 +255,10 @@ export const MainScreen: React.FC = () => {
                 />
               </ScrollView>
             ) : (
-              <EmptyState message="이번 달 일별 데이터가 없습니다." height={220} />
+              <EmptyState
+                message="이번 달 일별 데이터가 없습니다."
+                height={220}
+              />
             )}
 
             <BannerAdView />
@@ -324,7 +328,7 @@ export const MainScreen: React.FC = () => {
                     <AccountBookHistoryListItemView
                       item={history}
                       onPressItem={clicked => {
-                        navigation.push('Detail', {item: clicked});
+                        navigation.push(ROUTES.DETAIL, {item: clicked});
                       }}
                     />
                   </Swipeable>
@@ -343,7 +347,7 @@ export const MainScreen: React.FC = () => {
           bottom: scaleWidth(12) + safeAreaInset.bottom,
         }}
         onPress={() => {
-          navigation.push('Add', {});
+          navigation.push(ROUTES.ADD, {});
         }}>
         <View
           style={{

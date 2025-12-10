@@ -71,7 +71,7 @@ export const AddUpdateScreen: React.FC = () => {
   const onChangePrice = useCallback<(text: string) => void>(text => {
     setItem(prevState => ({
       ...prevState,
-      price: parseInt(text),
+      price: parseInt(text, 10) || 0,
     }));
   }, []);
 
@@ -287,7 +287,20 @@ export const AddUpdateScreen: React.FC = () => {
           </View>
 
           <View style={{marginLeft: scaleWidth(24)}}>
-            <PhotoPicker photoUrl={item.photoUrl} onPress={onPressPhoto} />
+            <PhotoPicker
+              photoUrl={item.photoUrl}
+              onPress={onPressPhoto}
+              onDelete={
+                item.photoUrl
+                  ? () => {
+                      setItem(prevState => ({
+                        ...prevState,
+                        photoUrl: null,
+                      }));
+                    }
+                  : undefined
+              }
+            />
           </View>
         </View>
 
