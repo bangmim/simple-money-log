@@ -9,7 +9,15 @@ import {
 } from 'react-native';
 import {Header} from '../components/Header/Header';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
-import {faPlus, faTrash, faUser} from '@fortawesome/free-solid-svg-icons';
+import {
+  faPlus,
+  faTrash,
+  faUser,
+  faChevronLeft,
+  faChevronRight,
+  faCalendarAlt,
+  faTimes,
+} from '@fortawesome/free-solid-svg-icons';
 import {AccountBookHistory} from '../data/AccountBookHistory';
 import {useRootNavigation} from '../navigations/RootNavigation';
 import {AccountBookHistoryListItemView} from '../components/AccountHistoryListItemView';
@@ -37,6 +45,13 @@ export const MainScreen: React.FC = () => {
   const {user} = useAuth();
   const [list, setList] = useState<AccountBookHistory[]>([]);
   const [nickname, setNickname] = useState<string>('');
+  const [selectedYear, setSelectedYear] = useState<number>(
+    new Date().getFullYear(),
+  );
+  const [selectedMonth, setSelectedMonth] = useState<number>(
+    new Date().getMonth(),
+  );
+  const [showMonthSelector, setShowMonthSelector] = useState<boolean>(false);
   const {getList, deleteItem} = useAccountBookHistoryItem();
   const swipeableRefs = useRef<Map<string, Swipeable | null>>(
     new Map<string, Swipeable | null>(),
@@ -86,10 +101,9 @@ export const MainScreen: React.FC = () => {
   }, [user]);
 
   const dailyChart = useMemo(() => {
-    // 이번 달 1일부터 말일까지 일별 통계 (단위: 천원)
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = now.getMonth();
+    // 선택한 달 1일부터 말일까지 일별 통계 (단위: 천원)
+    const year = selectedYear;
+    const month = selectedMonth;
 
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     const expense = Array(daysInMonth).fill(0);
@@ -121,7 +135,7 @@ export const MainScreen: React.FC = () => {
     const hasData = data.some(([e, inc]) => e !== 0 || inc !== 0);
 
     return {labels, data, hasData};
-  }, [list]);
+  }, [list, selectedYear, selectedMonth]);
 
   type DailyGroup = {
     key: string;
@@ -133,9 +147,8 @@ export const MainScreen: React.FC = () => {
 
   const dailyGroups = useMemo<DailyGroup[]>(() => {
     const map = new Map<number, DailyGroup>();
-    const now = new Date();
-    const currentYear = now.getFullYear();
-    const currentMonth = now.getMonth();
+    const year = selectedYear;
+    const month = selectedMonth;
 
     list.forEach(item => {
       const time = item.date !== 0 ? item.date : item.createdAt;
@@ -144,8 +157,8 @@ export const MainScreen: React.FC = () => {
       }
 
       const d = new Date(time);
-      // 이번 달 데이터만 표시
-      if (d.getFullYear() !== currentYear || d.getMonth() !== currentMonth) {
+      // 선택한 달 데이터만 표시
+      if (d.getFullYear() !== year || d.getMonth() !== month) {
         return;
       }
       d.setHours(0, 0, 0, 0);
@@ -172,7 +185,7 @@ export const MainScreen: React.FC = () => {
 
     // 최신 날짜 순으로 정렬
     return Array.from(map.values()).sort((a, b) => b.date - a.date);
-  }, [list]);
+  }, [list, selectedYear, selectedMonth]);
 
   const handleDelete = useCallback(
     (history: AccountBookHistory) => {
@@ -195,19 +208,73 @@ export const MainScreen: React.FC = () => {
     navigation.push(ROUTES.MY_PAGE);
   }, [navigation]);
 
+  const handlePreviousMonth = useCallback(() => {
+    if (selectedMonth === 0) {
+      setSelectedYear(selectedYear - 1);
+      setSelectedMonth(11);
+    } else {
+      setSelectedMonth(selectedMonth - 1);
+    }
+  }, [selectedYear, selectedMonth]);
+
+  const handleNextMonth = useCallback(() => {
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth();
+
+    // 다음 달로 이동 가능한지 확인 (현재 달까지만)
+    if (selectedYear > currentYear) {
+      return;
+    }
+    if (selectedYear === currentYear && selectedMonth >= currentMonth) {
+      return;
+    }
+
+    if (selectedMonth === 11) {
+      setSelectedYear(selectedYear + 1);
+      setSelectedMonth(0);
+    } else {
+      setSelectedMonth(selectedMonth + 1);
+    }
+  }, [selectedYear, selectedMonth]);
+
+  const handleResetToCurrentMonth = useCallback(() => {
+    const now = new Date();
+    setSelectedYear(now.getFullYear());
+    setSelectedMonth(now.getMonth());
+  }, []);
+
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: colors.background}}>
       <Header>
         <Header.Title title={nickname ? `${nickname}님의 가계부` : '가계부'} />
-        <Pressable
-          onPress={handleMyPage}
-          hitSlop={{top: 10, bottom: 10, left: 10, right: 10}}>
-          <FontAwesomeIcon
-            icon={faUser}
-            size={20}
-            color={colors.textSecondary}
-          />
-        </Pressable>
+        <View style={{flexDirection: 'row', gap: scaleWidth(16)}}>
+          <Pressable
+            onPress={() => setShowMonthSelector(!showMonthSelector)}
+            hitSlop={{top: 10, bottom: 10, left: 10, right: 10}}>
+            <FontAwesomeIcon
+              icon={faCalendarAlt}
+              size={20}
+              color={
+                showMonthSelector
+                  ? colors.primary
+                  : selectedYear !== new Date().getFullYear() ||
+                    selectedMonth !== new Date().getMonth()
+                  ? colors.primary
+                  : colors.textSecondary
+              }
+            />
+          </Pressable>
+          <Pressable
+            onPress={handleMyPage}
+            hitSlop={{top: 10, bottom: 10, left: 10, right: 10}}>
+            <FontAwesomeIcon
+              icon={faUser}
+              size={20}
+              color={colors.textSecondary}
+            />
+          </Pressable>
+        </View>
       </Header>
       <FlatList
         data={dailyGroups}
@@ -215,6 +282,150 @@ export const MainScreen: React.FC = () => {
         contentContainerStyle={{paddingBottom: scaleWidth(80)}}
         ListHeaderComponent={
           <View>
+            {/* 월 선택 헤더 - showMonthSelector가 true일 때만 표시 */}
+            {showMonthSelector && (
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  paddingHorizontal: spacing.horizontal,
+                  paddingVertical: spacing.medium,
+                  backgroundColor: colors.backgroundSecondary,
+                  borderBottomWidth: 1,
+                  borderBottomColor: colors.borderLight,
+                }}>
+                <Pressable
+                  onPress={handlePreviousMonth}
+                  hitSlop={{top: 10, bottom: 10, left: 10, right: 10}}
+                  style={{
+                    padding: scaleWidth(8),
+                  }}>
+                  <FontAwesomeIcon
+                    icon={faChevronLeft}
+                    size={20}
+                    color={colors.textPrimary}
+                  />
+                </Pressable>
+
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    gap: scaleWidth(8),
+                  }}>
+                  <Typography variant="bodyBold" fontSize={18}>
+                    {new Date(
+                      selectedYear,
+                      selectedMonth,
+                      1,
+                    ).toLocaleDateString('ko-KR', {
+                      year: 'numeric',
+                      month: 'long',
+                    })}
+                  </Typography>
+                  {selectedYear !== new Date().getFullYear() ||
+                  selectedMonth !== new Date().getMonth() ? (
+                    <Pressable
+                      onPress={() => {
+                        handleResetToCurrentMonth();
+                        setShowMonthSelector(false);
+                      }}
+                      style={{
+                        paddingHorizontal: scaleWidth(12),
+                        paddingVertical: scaleWidth(6),
+                        borderRadius: 8,
+                        backgroundColor: colors.primary + '20',
+                      }}>
+                      <Typography
+                        variant="caption"
+                        color={colors.primary}
+                        style={{fontWeight: '600'}}>
+                        이번 달로
+                      </Typography>
+                    </Pressable>
+                  ) : null}
+                </View>
+
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    gap: scaleWidth(8),
+                  }}>
+                  <Pressable
+                    onPress={handleNextMonth}
+                    hitSlop={{top: 10, bottom: 10, left: 10, right: 10}}
+                    disabled={
+                      selectedYear > new Date().getFullYear() ||
+                      (selectedYear === new Date().getFullYear() &&
+                        selectedMonth >= new Date().getMonth())
+                    }
+                    style={{
+                      padding: scaleWidth(8),
+                      opacity:
+                        selectedYear > new Date().getFullYear() ||
+                        (selectedYear === new Date().getFullYear() &&
+                          selectedMonth >= new Date().getMonth())
+                          ? 0.3
+                          : 1,
+                    }}>
+                    <FontAwesomeIcon
+                      icon={faChevronRight}
+                      size={20}
+                      color={colors.textPrimary}
+                    />
+                  </Pressable>
+                  <Pressable
+                    onPress={() => setShowMonthSelector(false)}
+                    hitSlop={{top: 10, bottom: 10, left: 10, right: 10}}
+                    style={{
+                      padding: scaleWidth(8),
+                      marginLeft: scaleWidth(4),
+                    }}>
+                    <FontAwesomeIcon
+                      icon={faTimes}
+                      size={18}
+                      color={colors.textSecondary}
+                    />
+                  </Pressable>
+                </View>
+              </View>
+            )}
+
+            {/* 현재 선택된 월 표시 (월 선택 UI가 닫혀있을 때만) */}
+            {!showMonthSelector && (
+              <View
+                style={{
+                  paddingHorizontal: spacing.horizontal,
+                  paddingVertical: scaleWidth(8),
+                  backgroundColor: colors.background,
+                }}>
+                <Typography
+                  variant="body"
+                  color={colors.textSecondary}
+                  fontSize={14}>
+                  {new Date(selectedYear, selectedMonth, 1).toLocaleDateString(
+                    'ko-KR',
+                    {
+                      year: 'numeric',
+                      month: 'long',
+                    },
+                  )}
+                  {selectedYear !== new Date().getFullYear() ||
+                  selectedMonth !== new Date().getMonth() ? (
+                    <Typography
+                      variant="caption"
+                      color={colors.primary}
+                      style={{marginLeft: scaleWidth(4)}}>
+                      {' '}
+                      (이번 달 아님)
+                    </Typography>
+                  ) : null}
+                </Typography>
+              </View>
+            )}
+
             <View
               style={{
                 flexDirection: 'row',
@@ -224,12 +435,7 @@ export const MainScreen: React.FC = () => {
                 paddingVertical: 8,
               }}>
               <Typography variant="title" fontSize={18}>
-                일별 통계 (
-                {new Date().toLocaleDateString('ko-KR', {
-                  year: 'numeric',
-                  month: 'long',
-                })}
-                , 단위: 천원)
+                일별 통계 (단위: 천원)
               </Typography>
               <Pressable
                 onPress={() => {
@@ -264,7 +470,14 @@ export const MainScreen: React.FC = () => {
               </ScrollView>
             ) : (
               <EmptyState
-                message="이번 달 일별 데이터가 없습니다."
+                message={`${new Date(
+                  selectedYear,
+                  selectedMonth,
+                  1,
+                ).toLocaleDateString('ko-KR', {
+                  year: 'numeric',
+                  month: 'long',
+                })} 일별 데이터가 없습니다.`}
                 height={220}
               />
             )}
