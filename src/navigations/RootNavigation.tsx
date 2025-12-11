@@ -68,10 +68,10 @@ export const RootNavigation = () => {
           const shown = showAd();
           if (shown) {
             adShowCountRef.current += 1;
-            console.log(
-              '[RootNavigation] Interstitial ad shown, count:',
-              adShowCountRef.current,
-            );
+            // console.log(
+            //   '[RootNavigation] Interstitial ad shown, count:',
+            //   adShowCountRef.current,
+            // );
           }
         }, 500);
       }
