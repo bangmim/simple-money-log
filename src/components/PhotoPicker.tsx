@@ -36,18 +36,24 @@ export const PhotoPicker: React.FC<PhotoPickerProps> = ({
           </View>
         )}
       </Pressable>
-      {photoUrl && onDelete && (
-        <Pressable
-          onPress={onDelete}
-          style={[styles.deleteButton, {width: size * 0.3, height: size * 0.3}]}
-          hitSlop={{top: 5, bottom: 5, left: 5, right: 5}}>
-          <FontAwesomeIcon
-            icon={faTimes}
-            size={scaleWidth(12)}
-            color={colors.textInverse}
-          />
-        </Pressable>
-      )}
+      {photoUrl &&
+        typeof photoUrl === 'string' &&
+        photoUrl.trim().length > 0 &&
+        onDelete && (
+          <Pressable
+            onPress={onDelete}
+            style={[
+              styles.deleteButton,
+              {width: size * 0.3, height: size * 0.3},
+            ]}
+            hitSlop={{top: 5, bottom: 5, left: 5, right: 5}}>
+            <FontAwesomeIcon
+              icon={faTimes}
+              size={scaleWidth(12)}
+              color={colors.textInverse}
+            />
+          </Pressable>
+        )}
     </View>
   );
 };

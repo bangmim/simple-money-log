@@ -93,9 +93,10 @@ const styles = StyleSheet.create({
 });
 
 // 하위 호환성을 위한 별칭
-export const SingleLineInput = forwardRef<TextInput, Omit<InputProps, 'multiline' | 'height'>>(
-  (props, ref) => <Input {...props} ref={ref} multiline={false} />,
-);
+export const SingleLineInput = forwardRef<
+  TextInput,
+  Omit<InputProps, 'multiline' | 'height'>
+>((props, ref) => <Input {...props} ref={ref} multiline={false} />);
 
 export const MultiLineInput = forwardRef<
   TextInput,

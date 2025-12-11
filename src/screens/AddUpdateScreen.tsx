@@ -292,7 +292,9 @@ export const AddUpdateScreen: React.FC = () => {
               photoUrl={item.photoUrl}
               onPress={onPressPhoto}
               onDelete={
-                item.photoUrl
+                item.photoUrl &&
+                typeof item.photoUrl === 'string' &&
+                item.photoUrl.trim().length > 0
                   ? () => {
                       setItem(prevState => ({
                         ...prevState,
