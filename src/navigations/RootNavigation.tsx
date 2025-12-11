@@ -44,6 +44,15 @@ export const RootNavigation = () => {
       return;
     }
 
+    // 로그인 화면에서 메인 화면으로 이동할 때는 광고 표시 안 함 (최초 로그인)
+    if (
+      lastRouteNameRef.current === ROUTES.LOGIN &&
+      currentRouteName === ROUTES.MAIN
+    ) {
+      lastRouteNameRef.current = currentRouteName;
+      return;
+    }
+
     // 이전 화면과 다른 화면으로 이동했을 때만 광고 표시
     if (
       lastRouteNameRef.current &&
