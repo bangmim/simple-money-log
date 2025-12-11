@@ -43,7 +43,7 @@ export const MainScreen: React.FC = () => {
   const safeAreaInset = useSafeAreaInsets();
   const {width} = useWindowDimensions();
   const navigation = useRootNavigation();
-  const {user} = useAuth();
+  const {user, isNewlyRegistered, setIsNewlyRegistered} = useAuth();
   const [list, setList] = useState<AccountBookHistory[]>([]);
   const [nickname, setNickname] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(true);
@@ -71,7 +71,11 @@ export const MainScreen: React.FC = () => {
   useFocusEffect(
     useCallback(() => {
       fetchList();
-    }, [fetchList]),
+      // 회원가입 직후 플래그 리셋 (다음 포커스부터는 광고 표시)
+      if (isNewlyRegistered) {
+        setIsNewlyRegistered(false);
+      }
+    }, [fetchList, isNewlyRegistered, setIsNewlyRegistered]),
   );
 
   // 닉네임 가져오기
@@ -501,7 +505,7 @@ export const MainScreen: React.FC = () => {
                   />
                 )}
 
-                <BannerAdView />
+                {!isNewlyRegistered && <BannerAdView />}
               </View>
             }
             renderItem={({item}) => {
@@ -614,7 +618,7 @@ export const MainScreen: React.FC = () => {
           </Pressable>
         </>
       )}
-      <BannerAdView />
+      {!isNewlyRegistered && <BannerAdView />}
     </SafeAreaView>
   );
 };

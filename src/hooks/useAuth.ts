@@ -6,6 +6,7 @@ export const useAuth = () => {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isNewlyRegistered, setIsNewlyRegistered] = useState(false);
 
   useEffect(() => {
     // supabase가 제대로 초기화되지 않았을 때 처리
@@ -42,6 +43,10 @@ export const useAuth = () => {
           setSession(session);
           setUser(session?.user ?? null);
           setLoading(false);
+          // 로그아웃 시 새로 가입한 사용자 플래그 리셋
+          if (!session) {
+            setIsNewlyRegistered(false);
+          }
         },
       );
       if (authStateChangeResponse && authStateChangeResponse.data) {
@@ -331,6 +336,9 @@ export const useAuth = () => {
         };
       }
 
+      // 회원가입 성공 시 플래그 설정
+      setIsNewlyRegistered(true);
+
       return {data: authData, error: null};
     } catch (error: any) {
       return {data: null, error: {message: error.message || 'Sign up failed'}};
@@ -457,5 +465,7 @@ export const useAuth = () => {
     checkEmailDuplicate,
     checkUsernameDuplicate,
     isAuthenticated: !!session,
+    isNewlyRegistered,
+    setIsNewlyRegistered,
   };
 };
