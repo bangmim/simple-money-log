@@ -32,7 +32,7 @@ import {useAuth} from '../hooks/useAuth';
 import {EmptyState} from '../components/EmptyState';
 import {confirmDialog} from '../utils/confirmDialog';
 import colors from '../theme/colors';
-import {spacing} from '../theme/spacing';
+import {spacing, iconSizes} from '../theme/spacing';
 import {Typography} from '../components/Typography';
 import {scaleWidth} from '../utils/responsive';
 import {BannerAdView} from '../components/BannerAdView';
@@ -403,7 +403,7 @@ export const MainScreen: React.FC = () => {
                         }}>
                         <FontAwesomeIcon
                           icon={faTimes}
-                          size={scaleWidth(18)}
+                          size={iconSizes.closeButton}
                           color={colors.textSecondary}
                         />
                       </Pressable>

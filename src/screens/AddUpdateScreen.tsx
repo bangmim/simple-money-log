@@ -10,6 +10,7 @@ import {
 import {Header} from '../components/Header/Header';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {faTimes} from '@fortawesome/free-solid-svg-icons';
+import {iconSizes} from '../theme/spacing';
 import {useRootNavigation, useRootRoute} from '../navigations/RootNavigation';
 import {AccountBookHistory} from '../data/AccountBookHistory';
 import {Spacer} from '../components/Spacer';
@@ -250,7 +251,11 @@ export const AddUpdateScreen: React.FC = () => {
             navigation.goBack();
           }}
           hitSlop={{top: 10, bottom: 10, left: 10, right: 10}}>
-          <FontAwesomeIcon icon={faTimes} size={scaleWidth(18)} color="black" />
+          <FontAwesomeIcon
+            icon={faTimes}
+            size={iconSizes.closeButton}
+            color="black"
+          />
         </Pressable>
       </Header>
       <ScrollView

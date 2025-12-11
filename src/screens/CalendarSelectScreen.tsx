@@ -8,6 +8,7 @@ import {convertToDateString} from '../utils/DateUtils';
 import colors from '../theme/colors';
 import {Typography} from '../components/Typography';
 import {scaleWidth} from '../utils/responsive';
+import {iconSizes} from '../theme/spacing';
 
 const today = new Date();
 today.setHours(0);
@@ -100,7 +101,7 @@ export const CalendarSelectScreen: React.FC<CalendarSelectScreenProps> = ({
                 hitSlop={{top: 10, bottom: 10, left: 10, right: 10}}>
                 <FontAwesomeIcon
                   icon={faTimes}
-                  size={scaleWidth(18)}
+                  size={iconSizes.closeButton}
                   color="black"
                 />
               </Pressable>

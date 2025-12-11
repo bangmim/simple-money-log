@@ -17,7 +17,7 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 import {SegmentToggle} from '../components/SegmentToggle';
 import {EmptyState} from '../components/EmptyState';
 import colors from '../theme/colors';
-import {spacing} from '../theme/spacing';
+import {spacing, iconSizes} from '../theme/spacing';
 import {scaleWidth} from '../utils/responsive';
 import {BannerAdView} from '../components/BannerAdView';
 import {Spacer} from '../components/Spacer';
@@ -157,7 +157,11 @@ export const MonthlyScreen: React.FC = () => {
             navigation.goBack();
           }}
           hitSlop={{top: 10, bottom: 10, left: 10, right: 10}}>
-          <FontAwesomeIcon icon={faTimes} size={scaleWidth(18)} color="black" />
+          <FontAwesomeIcon
+            icon={faTimes}
+            size={iconSizes.closeButton}
+            color="black"
+          />
         </Pressable>
       </Header>
       <ScrollView

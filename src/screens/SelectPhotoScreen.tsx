@@ -18,6 +18,7 @@ import {
   PermissionStatus,
 } from 'react-native-permissions';
 import colors from '../theme/colors';
+import {iconSizes} from '../theme/spacing';
 import {Typography} from '../components/Typography';
 
 export const SelectPhotoScreen: React.FC = () => {
@@ -91,7 +92,11 @@ export const SelectPhotoScreen: React.FC = () => {
         <Pressable
           onPress={navigation.goBack}
           hitSlop={{top: 10, bottom: 10, left: 10, right: 10}}>
-          <FontAwesomeIcon icon={faTimes} size={scaleWidth(18)} color="black" />
+          <FontAwesomeIcon
+            icon={faTimes}
+            size={iconSizes.closeButton}
+            color="black"
+          />
         </Pressable>
       </Header>
       <FlatList

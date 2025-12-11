@@ -17,8 +17,7 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 import {useAuth} from '../hooks/useAuth';
 import {confirmDialog} from '../utils/confirmDialog';
 import colors from '../theme/colors';
-import {spacing} from '../theme/spacing';
-import {scaleWidth} from '../utils/responsive';
+import {spacing, iconSizes} from '../theme/spacing';
 import {BannerAdView} from '../components/BannerAdView';
 import {useAccountBookHistoryItem} from '../hooks/useAccountBookHistoryItem';
 import {exportToExcel} from '../utils/exportData';
@@ -134,7 +133,11 @@ export const MyPageScreen: React.FC = () => {
             navigation.goBack();
           }}
           hitSlop={{top: 10, bottom: 10, left: 10, right: 10}}>
-          <FontAwesomeIcon icon={faTimes} size={scaleWidth(18)} color="black" />
+          <FontAwesomeIcon
+            icon={faTimes}
+            size={iconSizes.closeButton}
+            color="black"
+          />
         </Pressable>
       </Header>
       <ScrollView
