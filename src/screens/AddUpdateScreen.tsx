@@ -149,6 +149,7 @@ export const AddUpdateScreen: React.FC = () => {
           launchImageLibrary(
             {
               mediaType: 'photo' as MediaType,
+              selectionLimit: 1,
               quality: 0.8,
             },
             (response: ImagePickerResponse) => {
