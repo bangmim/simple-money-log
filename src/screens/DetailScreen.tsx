@@ -1,7 +1,7 @@
 import React, {useCallback, useState} from 'react';
 import {Pressable, ScrollView, View} from 'react-native';
 import {Header} from '../components/Header/Header';
-import {faClose} from '@fortawesome/free-solid-svg-icons';
+import {faTimes} from '@fortawesome/free-solid-svg-icons';
 import {useRootNavigation, useRootRoute} from '../navigations/RootNavigation';
 import {Spacer} from '../components/Spacer';
 import {AccountBookHistory} from '../data/AccountBookHistory';
@@ -61,7 +61,7 @@ export const DetailScreen: React.FC = () => {
     <SafeAreaView style={{flex: 1, backgroundColor: colors.background}}>
       <Header>
         <Header.Title title="내역 상세" />
-        <Header.Icon iconName={faClose} onPress={() => navigation.goBack()} />
+        <Header.Icon iconName={faTimes} onPress={() => navigation.goBack()} />
       </Header>
 
       <ScrollView

@@ -3,7 +3,7 @@ import {Alert, Pressable, ScrollView} from 'react-native';
 // import Clipboard from '@react-native-clipboard/clipboard'; // 관리자 이메일 복사 버튼용 (필요시 주석 해제)
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {
-  faClose,
+  faTimes,
   faFileExport,
   faEnvelope,
   faSignOutAlt,
@@ -18,6 +18,7 @@ import {useAuth} from '../hooks/useAuth';
 import {confirmDialog} from '../utils/confirmDialog';
 import colors from '../theme/colors';
 import {spacing} from '../theme/spacing';
+import {scaleWidth} from '../utils/responsive';
 import {BannerAdView} from '../components/BannerAdView';
 import {useAccountBookHistoryItem} from '../hooks/useAccountBookHistoryItem';
 import {exportToExcel} from '../utils/exportData';
@@ -133,7 +134,7 @@ export const MyPageScreen: React.FC = () => {
             navigation.goBack();
           }}
           hitSlop={{top: 10, bottom: 10, left: 10, right: 10}}>
-          <FontAwesomeIcon icon={faClose} />
+          <FontAwesomeIcon icon={faTimes} size={scaleWidth(18)} color="black" />
         </Pressable>
       </Header>
       <ScrollView

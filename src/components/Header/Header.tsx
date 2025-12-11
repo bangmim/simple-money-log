@@ -25,7 +25,7 @@ export const Header: React.FC<{
         borderBottomColor: 'gray',
         borderBottomWidth: StyleSheet.hairlineWidth,
         alignItems: 'center',
-        marginHorizontal: scaleWidth(24),
+        marginHorizontal: scaleWidth(12),
       }}>
       <Spacer horizontal={true} space={scaleWidth(12)} />
       <View

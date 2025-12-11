@@ -2,7 +2,8 @@ import React, {useCallback, useEffect, useState} from 'react';
 import {Alert, FlatList, Image, Platform, Pressable, View} from 'react-native';
 import {Header} from '../components/Header/Header';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
-import {faClose} from '@fortawesome/free-solid-svg-icons';
+import {faTimes} from '@fortawesome/free-solid-svg-icons';
+import {scaleWidth} from '../utils/responsive';
 import {useRootNavigation, useRootRoute} from '../navigations/RootNavigation';
 import {
   CameraRoll,
@@ -18,7 +19,6 @@ import {
 } from 'react-native-permissions';
 import colors from '../theme/colors';
 import {Typography} from '../components/Typography';
-import {scaleWidth} from '../utils/responsive';
 
 export const SelectPhotoScreen: React.FC = () => {
   const navigation = useRootNavigation<'SelectPhoto'>();
@@ -91,7 +91,7 @@ export const SelectPhotoScreen: React.FC = () => {
         <Pressable
           onPress={navigation.goBack}
           hitSlop={{top: 10, bottom: 10, left: 10, right: 10}}>
-          <FontAwesomeIcon icon={faClose} />
+          <FontAwesomeIcon icon={faTimes} size={scaleWidth(18)} color="black" />
         </Pressable>
       </Header>
       <FlatList

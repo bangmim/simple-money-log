@@ -1,7 +1,7 @@
 import React, {useCallback} from 'react';
 import {Pressable, TouchableWithoutFeedback, View} from 'react-native';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
-import {faX} from '@fortawesome/free-solid-svg-icons';
+import {faTimes} from '@fortawesome/free-solid-svg-icons';
 import {useRootNavigation} from '../navigations/RootNavigation';
 import {Calendar} from 'react-native-calendars';
 import {convertToDateString} from '../utils/DateUtils';
@@ -98,7 +98,11 @@ export const CalendarSelectScreen: React.FC<CalendarSelectScreenProps> = ({
               <Pressable
                 onPress={handleClose}
                 hitSlop={{top: 10, bottom: 10, left: 10, right: 10}}>
-                <FontAwesomeIcon icon={faX} />
+                <FontAwesomeIcon
+                  icon={faTimes}
+                  size={scaleWidth(18)}
+                  color="black"
+                />
               </Pressable>
             </View>
             <Calendar

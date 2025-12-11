@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import {Header} from '../components/Header/Header';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
-import {faClose} from '@fortawesome/free-solid-svg-icons';
+import {faTimes} from '@fortawesome/free-solid-svg-icons';
 import {StackedBarChartView} from '../components/StackedBarChartView';
 import {useRootNavigation} from '../navigations/RootNavigation';
 import {useAccountBookHistoryItem} from '../hooks/useAccountBookHistoryItem';
@@ -157,7 +157,7 @@ export const MonthlyScreen: React.FC = () => {
             navigation.goBack();
           }}
           hitSlop={{top: 10, bottom: 10, left: 10, right: 10}}>
-          <FontAwesomeIcon icon={faClose} />
+          <FontAwesomeIcon icon={faTimes} size={scaleWidth(18)} color="black" />
         </Pressable>
       </Header>
       <ScrollView

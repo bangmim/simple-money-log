@@ -49,7 +49,7 @@ export const PhotoPicker: React.FC<PhotoPickerProps> = ({
             hitSlop={{top: 5, bottom: 5, left: 5, right: 5}}>
             <FontAwesomeIcon
               icon={faTimes}
-              size={scaleWidth(12)}
+              size={scaleWidth(16)}
               color={colors.textInverse}
             />
           </Pressable>

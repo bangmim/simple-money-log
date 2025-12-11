@@ -403,7 +403,7 @@ export const MainScreen: React.FC = () => {
                         }}>
                         <FontAwesomeIcon
                           icon={faTimes}
-                          size={18}
+                          size={scaleWidth(18)}
                           color={colors.textSecondary}
                         />
                       </Pressable>
@@ -591,7 +591,7 @@ export const MainScreen: React.FC = () => {
             style={{
               position: 'absolute',
               right: scaleWidth(12),
-              bottom: scaleWidth(12) + safeAreaInset.bottom,
+              bottom: scaleWidth(12) + safeAreaInset.bottom + scaleWidth(80), // 배너 광고 높이 고려 (약 80px)
             }}
             onPress={() => {
               navigation.push(ROUTES.ADD, {});
