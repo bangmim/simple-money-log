@@ -6,6 +6,7 @@ import {
   ScrollView,
   View,
   useWindowDimensions,
+  ActivityIndicator,
 } from 'react-native';
 import {Header} from '../components/Header/Header';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
@@ -45,6 +46,7 @@ export const MainScreen: React.FC = () => {
   const {user} = useAuth();
   const [list, setList] = useState<AccountBookHistory[]>([]);
   const [nickname, setNickname] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(true);
   const [selectedYear, setSelectedYear] = useState<number>(
     new Date().getFullYear(),
   );
@@ -57,8 +59,13 @@ export const MainScreen: React.FC = () => {
     new Map<string, Swipeable | null>(),
   );
   const fetchList = useCallback(async () => {
-    const data = await getList();
-    setList(data);
+    setLoading(true);
+    try {
+      const data = await getList();
+      setList(data);
+    } finally {
+      setLoading(false);
+    }
   }, [getList]);
 
   useFocusEffect(
@@ -276,320 +283,338 @@ export const MainScreen: React.FC = () => {
           </Pressable>
         </View>
       </Header>
-      <FlatList
-        data={dailyGroups}
-        keyExtractor={item => item.key}
-        contentContainerStyle={{paddingBottom: scaleWidth(80)}}
-        ListHeaderComponent={
-          <View>
-            {/* 월 선택 헤더 - showMonthSelector가 true일 때만 표시 */}
-            {showMonthSelector && (
-              <View
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  paddingHorizontal: spacing.horizontal,
-                  paddingVertical: spacing.medium,
-                  backgroundColor: colors.backgroundSecondary,
-                  borderBottomWidth: 1,
-                  borderBottomColor: colors.borderLight,
-                }}>
-                <Pressable
-                  onPress={handlePreviousMonth}
-                  hitSlop={{top: 10, bottom: 10, left: 10, right: 10}}
-                  style={{
-                    padding: scaleWidth(8),
-                  }}>
-                  <FontAwesomeIcon
-                    icon={faChevronLeft}
-                    size={20}
-                    color={colors.textPrimary}
-                  />
-                </Pressable>
+      {loading ? (
+        <View
+          style={{
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}>
+          <ActivityIndicator size="large" color={colors.primary} />
+        </View>
+      ) : (
+        <>
+          <FlatList
+            data={dailyGroups}
+            keyExtractor={item => item.key}
+            contentContainerStyle={{paddingBottom: scaleWidth(80)}}
+            ListHeaderComponent={
+              <View>
+                {/* 월 선택 헤더 - showMonthSelector가 true일 때만 표시 */}
+                {showMonthSelector && (
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      paddingHorizontal: spacing.horizontal,
+                      paddingVertical: spacing.medium,
+                      backgroundColor: colors.backgroundSecondary,
+                      borderBottomWidth: 1,
+                      borderBottomColor: colors.borderLight,
+                    }}>
+                    <Pressable
+                      onPress={handlePreviousMonth}
+                      hitSlop={{top: 10, bottom: 10, left: 10, right: 10}}
+                      style={{
+                        padding: scaleWidth(8),
+                      }}>
+                      <FontAwesomeIcon
+                        icon={faChevronLeft}
+                        size={20}
+                        color={colors.textPrimary}
+                      />
+                    </Pressable>
+
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        gap: scaleWidth(8),
+                      }}>
+                      <Typography variant="bodyBold" fontSize={18}>
+                        {new Date(
+                          selectedYear,
+                          selectedMonth,
+                          1,
+                        ).toLocaleDateString('ko-KR', {
+                          year: 'numeric',
+                          month: 'long',
+                        })}
+                      </Typography>
+                      {selectedYear !== new Date().getFullYear() ||
+                      selectedMonth !== new Date().getMonth() ? (
+                        <Pressable
+                          onPress={() => {
+                            handleResetToCurrentMonth();
+                            setShowMonthSelector(false);
+                          }}
+                          style={{
+                            paddingHorizontal: scaleWidth(12),
+                            paddingVertical: scaleWidth(6),
+                            borderRadius: 8,
+                            backgroundColor: colors.primary + '20',
+                          }}>
+                          <Typography
+                            variant="caption"
+                            color={colors.primary}
+                            style={{fontWeight: '600'}}>
+                            이번 달로
+                          </Typography>
+                        </Pressable>
+                      ) : null}
+                    </View>
+
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        gap: scaleWidth(8),
+                      }}>
+                      <Pressable
+                        onPress={handleNextMonth}
+                        hitSlop={{top: 10, bottom: 10, left: 10, right: 10}}
+                        disabled={
+                          selectedYear > new Date().getFullYear() ||
+                          (selectedYear === new Date().getFullYear() &&
+                            selectedMonth >= new Date().getMonth())
+                        }
+                        style={{
+                          padding: scaleWidth(8),
+                          opacity:
+                            selectedYear > new Date().getFullYear() ||
+                            (selectedYear === new Date().getFullYear() &&
+                              selectedMonth >= new Date().getMonth())
+                              ? 0.3
+                              : 1,
+                        }}>
+                        <FontAwesomeIcon
+                          icon={faChevronRight}
+                          size={20}
+                          color={colors.textPrimary}
+                        />
+                      </Pressable>
+                      <Pressable
+                        onPress={() => setShowMonthSelector(false)}
+                        hitSlop={{top: 10, bottom: 10, left: 10, right: 10}}
+                        style={{
+                          padding: scaleWidth(8),
+                          marginLeft: scaleWidth(4),
+                        }}>
+                        <FontAwesomeIcon
+                          icon={faTimes}
+                          size={18}
+                          color={colors.textSecondary}
+                        />
+                      </Pressable>
+                    </View>
+                  </View>
+                )}
+
+                {/* 현재 선택된 월 표시 (월 선택 UI가 닫혀있을 때만) */}
+                {!showMonthSelector && (
+                  <View
+                    style={{
+                      paddingHorizontal: spacing.horizontal,
+                      paddingVertical: scaleWidth(8),
+                      backgroundColor: colors.background,
+                    }}>
+                    <Typography
+                      variant="body"
+                      color={colors.textSecondary}
+                      fontSize={14}>
+                      {new Date(
+                        selectedYear,
+                        selectedMonth,
+                        1,
+                      ).toLocaleDateString('ko-KR', {
+                        year: 'numeric',
+                        month: 'long',
+                      })}
+                      {selectedYear !== new Date().getFullYear() ||
+                      selectedMonth !== new Date().getMonth() ? (
+                        <Typography
+                          variant="caption"
+                          color={colors.primary}
+                          style={{marginLeft: scaleWidth(4)}}>
+                          {' '}
+                          (이번 달 아님)
+                        </Typography>
+                      ) : null}
+                    </Typography>
+                  </View>
+                )}
 
                 <View
                   style={{
                     flexDirection: 'row',
                     alignItems: 'center',
-                    gap: scaleWidth(8),
+                    justifyContent: 'space-between',
+                    paddingHorizontal: spacing.horizontal,
+                    paddingVertical: 8,
                   }}>
-                  <Typography variant="bodyBold" fontSize={18}>
-                    {new Date(
+                  <Typography variant="title" fontSize={18}>
+                    일별 통계 (단위: 천원)
+                  </Typography>
+                  <Pressable
+                    onPress={() => {
+                      if (list.length === 0) {
+                        Alert.alert('알림', '표시할 데이터가 없습니다.');
+                        return;
+                      }
+                      navigation.push(ROUTES.MONTHLY_AVERAGE);
+                    }}>
+                    <Typography variant="caption" color={colors.primary}>
+                      자세히 보기
+                    </Typography>
+                  </Pressable>
+                </View>
+                {dailyChart.hasData ? (
+                  <ScrollView
+                    horizontal
+                    style={{backgroundColor: '#fff'}}
+                    showsHorizontalScrollIndicator={false}
+                    nestedScrollEnabled={true}
+                    contentContainerStyle={{
+                      paddingVertical: 8,
+                      paddingHorizontal: scaleWidth(24),
+                    }}>
+                    <StackedBarChartView
+                      labels={dailyChart.labels}
+                      data={dailyChart.data}
+                      width={Math.max(width, dailyChart.labels.length * 40)}
+                      height={220}
+                      hideLegend
+                    />
+                  </ScrollView>
+                ) : (
+                  <EmptyState
+                    message={`${new Date(
                       selectedYear,
                       selectedMonth,
                       1,
                     ).toLocaleDateString('ko-KR', {
                       year: 'numeric',
                       month: 'long',
-                    })}
-                  </Typography>
-                  {selectedYear !== new Date().getFullYear() ||
-                  selectedMonth !== new Date().getMonth() ? (
-                    <Pressable
-                      onPress={() => {
-                        handleResetToCurrentMonth();
-                        setShowMonthSelector(false);
-                      }}
-                      style={{
-                        paddingHorizontal: scaleWidth(12),
-                        paddingVertical: scaleWidth(6),
-                        borderRadius: 8,
-                        backgroundColor: colors.primary + '20',
-                      }}>
-                      <Typography
-                        variant="caption"
-                        color={colors.primary}
-                        style={{fontWeight: '600'}}>
-                        이번 달로
-                      </Typography>
-                    </Pressable>
-                  ) : null}
-                </View>
+                    })} 일별 데이터가 없습니다.`}
+                    height={220}
+                  />
+                )}
 
+                <BannerAdView />
+              </View>
+            }
+            renderItem={({item}) => {
+              const dateLabel = convertToDateString(item.date).split(' ')[0];
+              return (
                 <View
                   style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    gap: scaleWidth(8),
+                    paddingVertical: 12,
                   }}>
                   <Pressable
-                    onPress={handleNextMonth}
-                    hitSlop={{top: 10, bottom: 10, left: 10, right: 10}}
-                    disabled={
-                      selectedYear > new Date().getFullYear() ||
-                      (selectedYear === new Date().getFullYear() &&
-                        selectedMonth >= new Date().getMonth())
-                    }
-                    style={{
-                      padding: scaleWidth(8),
-                      opacity:
-                        selectedYear > new Date().getFullYear() ||
-                        (selectedYear === new Date().getFullYear() &&
-                          selectedMonth >= new Date().getMonth())
-                          ? 0.3
-                          : 1,
-                    }}>
-                    <FontAwesomeIcon
-                      icon={faChevronRight}
-                      size={20}
-                      color={colors.textPrimary}
-                    />
-                  </Pressable>
-                  <Pressable
-                    onPress={() => setShowMonthSelector(false)}
-                    hitSlop={{top: 10, bottom: 10, left: 10, right: 10}}
-                    style={{
-                      padding: scaleWidth(8),
-                      marginLeft: scaleWidth(4),
-                    }}>
-                    <FontAwesomeIcon
-                      icon={faTimes}
-                      size={18}
-                      color={colors.textSecondary}
-                    />
-                  </Pressable>
-                </View>
-              </View>
-            )}
-
-            {/* 현재 선택된 월 표시 (월 선택 UI가 닫혀있을 때만) */}
-            {!showMonthSelector && (
-              <View
-                style={{
-                  paddingHorizontal: spacing.horizontal,
-                  paddingVertical: scaleWidth(8),
-                  backgroundColor: colors.background,
-                }}>
-                <Typography
-                  variant="body"
-                  color={colors.textSecondary}
-                  fontSize={14}>
-                  {new Date(selectedYear, selectedMonth, 1).toLocaleDateString(
-                    'ko-KR',
-                    {
-                      year: 'numeric',
-                      month: 'long',
-                    },
-                  )}
-                  {selectedYear !== new Date().getFullYear() ||
-                  selectedMonth !== new Date().getMonth() ? (
-                    <Typography
-                      variant="caption"
-                      color={colors.primary}
-                      style={{marginLeft: scaleWidth(4)}}>
-                      {' '}
-                      (이번 달 아님)
+                    onPress={() => {
+                      navigation.push(ROUTES.ADD, {selectedDate: item.date});
+                    }}
+                    style={({pressed}) => [
+                      {
+                        flexDirection: 'row',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        marginBottom: 8,
+                        paddingVertical: scaleWidth(4),
+                        paddingHorizontal: spacing.horizontal,
+                        opacity: pressed ? 0.7 : 1,
+                      },
+                    ]}>
+                    <Typography variant="bodyBold">{dateLabel}</Typography>
+                    <Typography variant="caption" color={colors.textSecondary}>
+                      지출 {item.totalExpense.toLocaleString()}원 / 수입{' '}
+                      {item.totalIncome.toLocaleString()}원
                     </Typography>
-                  ) : null}
-                </Typography>
-              </View>
-            )}
+                  </Pressable>
 
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                paddingHorizontal: spacing.horizontal,
-                paddingVertical: 8,
-              }}>
-              <Typography variant="title" fontSize={18}>
-                일별 통계 (단위: 천원)
-              </Typography>
-              <Pressable
-                onPress={() => {
-                  if (list.length === 0) {
-                    Alert.alert('알림', '표시할 데이터가 없습니다.');
-                    return;
-                  }
-                  navigation.push(ROUTES.MONTHLY_AVERAGE);
-                }}>
-                <Typography variant="caption" color={colors.primary}>
-                  자세히 보기
-                </Typography>
-              </Pressable>
-            </View>
-            {dailyChart.hasData ? (
-              <ScrollView
-                horizontal
-                style={{backgroundColor: '#fff'}}
-                showsHorizontalScrollIndicator={false}
-                nestedScrollEnabled={true}
-                contentContainerStyle={{
-                  paddingVertical: 8,
-                  paddingHorizontal: scaleWidth(24),
-                }}>
-                <StackedBarChartView
-                  labels={dailyChart.labels}
-                  data={dailyChart.data}
-                  width={Math.max(width, dailyChart.labels.length * 40)}
-                  height={220}
-                  hideLegend
-                />
-              </ScrollView>
-            ) : (
-              <EmptyState
-                message={`${new Date(
-                  selectedYear,
-                  selectedMonth,
-                  1,
-                ).toLocaleDateString('ko-KR', {
-                  year: 'numeric',
-                  month: 'long',
-                })} 일별 데이터가 없습니다.`}
-                height={220}
-              />
-            )}
+                  {item.items.map(history => {
+                    const historyKey =
+                      history.id !== undefined && history.id !== null
+                        ? String(history.id)
+                        : `${history.createdAt}-${history.comment}`;
 
-            <BannerAdView />
-          </View>
-        }
-        renderItem={({item}) => {
-          const dateLabel = convertToDateString(item.date).split(' ')[0];
-          return (
-            <View
-              style={{
-                paddingVertical: 12,
-              }}>
-              <Pressable
-                onPress={() => {
-                  navigation.push(ROUTES.ADD, {selectedDate: item.date});
-                }}
-                style={({pressed}) => [
-                  {
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    marginBottom: 8,
-                    paddingVertical: scaleWidth(4),
-                    paddingHorizontal: spacing.horizontal,
-                    opacity: pressed ? 0.7 : 1,
-                  },
-                ]}>
-                <Typography variant="bodyBold">{dateLabel}</Typography>
-                <Typography variant="caption" color={colors.textSecondary}>
-                  지출 {item.totalExpense.toLocaleString()}원 / 수입{' '}
-                  {item.totalIncome.toLocaleString()}원
-                </Typography>
-              </Pressable>
-
-              {item.items.map(history => {
-                const historyKey =
-                  history.id !== undefined && history.id !== null
-                    ? String(history.id)
-                    : `${history.createdAt}-${history.comment}`;
-
-                return (
-                  <Swipeable
-                    key={historyKey}
-                    ref={ref => {
-                      swipeableRefs.current.set(historyKey, ref);
-                    }}
-                    onSwipeableWillOpen={() => {
-                      swipeableRefs.current.forEach((ref, key) => {
-                        if (key !== historyKey && ref && ref.close) {
-                          ref.close();
-                        }
-                      });
-                    }}
-                    renderRightActions={() => (
-                      <View
-                        style={{
-                          flexDirection: 'row',
-                          alignItems: 'center',
-                          paddingHorizontal: 20,
-                        }}>
-                        <RectButton
-                          style={{
-                            justifyContent: 'center',
-                            alignItems: 'center',
+                    return (
+                      <Swipeable
+                        key={historyKey}
+                        ref={ref => {
+                          swipeableRefs.current.set(historyKey, ref);
+                        }}
+                        onSwipeableWillOpen={() => {
+                          swipeableRefs.current.forEach((ref, key) => {
+                            if (key !== historyKey && ref && ref.close) {
+                              ref.close();
+                            }
+                          });
+                        }}
+                        renderRightActions={() => (
+                          <View
+                            style={{
+                              flexDirection: 'row',
+                              alignItems: 'center',
+                              paddingHorizontal: 20,
+                            }}>
+                            <RectButton
+                              style={{
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                              }}
+                              onPress={() => handleDelete(history)}>
+                              <FontAwesomeIcon
+                                icon={faTrash}
+                                size={20}
+                                color={colors.danger}
+                              />
+                            </RectButton>
+                          </View>
+                        )}>
+                        <AccountBookHistoryListItemView
+                          item={history}
+                          onPressItem={clicked => {
+                            navigation.push(ROUTES.DETAIL, {item: clicked});
                           }}
-                          onPress={() => handleDelete(history)}>
-                          <FontAwesomeIcon
-                            icon={faTrash}
-                            size={20}
-                            color={colors.danger}
-                          />
-                        </RectButton>
-                      </View>
-                    )}>
-                    <AccountBookHistoryListItemView
-                      item={history}
-                      onPressItem={clicked => {
-                        navigation.push(ROUTES.DETAIL, {item: clicked});
-                      }}
-                    />
-                  </Swipeable>
-                );
-              })}
+                        />
+                      </Swipeable>
+                    );
+                  })}
+                </View>
+              );
+            }}
+            showsVerticalScrollIndicator={true}
+          />
+          <Pressable
+            style={{
+              position: 'absolute',
+              right: scaleWidth(12),
+              bottom: scaleWidth(12) + safeAreaInset.bottom,
+            }}
+            onPress={() => {
+              navigation.push(ROUTES.ADD, {});
+            }}>
+            <View
+              style={{
+                width: scaleWidth(50),
+                height: scaleWidth(50),
+                borderRadius: scaleWidth(25),
+                backgroundColor: colors.primary,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+              <FontAwesomeIcon
+                icon={faPlus}
+                size={scaleWidth(30)}
+                color="white"
+              />
             </View>
-          );
-        }}
-        showsVerticalScrollIndicator={true}
-      />
-
-      <Pressable
-        style={{
-          position: 'absolute',
-          right: scaleWidth(12),
-          bottom: scaleWidth(12) + safeAreaInset.bottom,
-        }}
-        onPress={() => {
-          navigation.push(ROUTES.ADD, {});
-        }}>
-        <View
-          style={{
-            width: scaleWidth(50),
-            height: scaleWidth(50),
-            borderRadius: scaleWidth(25),
-            backgroundColor: colors.primary,
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}>
-          <FontAwesomeIcon icon={faPlus} size={scaleWidth(30)} color="white" />
-        </View>
-      </Pressable>
+          </Pressable>
+        </>
+      )}
+      <BannerAdView />
     </SafeAreaView>
   );
 };

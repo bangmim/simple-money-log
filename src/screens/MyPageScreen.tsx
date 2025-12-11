@@ -1,5 +1,6 @@
 import React, {useCallback, useState} from 'react';
 import {Alert, Pressable, ScrollView} from 'react-native';
+// import Clipboard from '@react-native-clipboard/clipboard'; // 관리자 이메일 복사 버튼용 (필요시 주석 해제)
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {
   faClose,
@@ -8,6 +9,7 @@ import {
   faSignOutAlt,
   faUserSlash,
   faEdit,
+  // faCopy, // 관리자 이메일 복사 버튼용 (필요시 주석 해제)
 } from '@fortawesome/free-solid-svg-icons';
 import {Header} from '../components/Header/Header';
 import {useRootNavigation} from '../navigations/RootNavigation';
@@ -106,8 +108,21 @@ export const MyPageScreen: React.FC = () => {
   }, [getList]);
 
   const handleContact = useCallback(async () => {
-    await openEmailContact();
+    confirmDialog({
+      title: '문의하기',
+      message: 'Gmail 앱 또는 웹으로 이동하여 문의 메일을 보내시겠습니까?',
+      confirmText: '이동',
+      onConfirm: async () => {
+        await openEmailContact();
+      },
+    });
   }, []);
+
+  // 관리자 이메일 복사 함수 (필요시 주석 해제)
+  // const handleCopyEmail = useCallback(() => {
+  //   Clipboard.setString('akiyun10@gmail.com');
+  //   Alert.alert('복사 완료', '이메일 주소가 클립보드에 복사되었습니다.');
+  // }, []);
 
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: colors.background}}>
@@ -184,6 +199,15 @@ export const MyPageScreen: React.FC = () => {
             subtitle="이메일로 문의하기"
             onPress={handleContact}
           />
+          {/* 관리자 이메일 복사 버튼 (필요시 주석 해제)
+          <SectionItem
+            icon={faCopy}
+            iconColor={colors.textSecondary}
+            iconBgColor={colors.textSecondary + '20'}
+            title="관리자 이메일 복사"
+            onPress={handleCopyEmail}
+          />
+          */}
         </SectionCard>
 
         {/* 계정 관리 섹션 */}
